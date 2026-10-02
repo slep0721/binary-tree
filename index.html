@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>數字二元搜尋樹</title>
+  <style>
+    :root{--bg:#f4f7fb;--card:#fff;--ink:#172033;--muted:#6b7890;--primary:#315efb;--line:#dce4f0;--left:#15803d;--right:#c2410c}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif}
+    main{width:min(1100px,92%);margin:42px auto}.hero{margin-bottom:22px}.hero h1{margin:0 0 8px;font-size:clamp(28px,5vw,44px)}.hero p{margin:0;color:var(--muted)}
+    .layout{display:grid;grid-template-columns:300px 1fr;gap:20px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 10px 25px #1720330b}
+    h2{font-size:19px;margin:0 0 8px}.hint{font-size:13px;color:var(--muted);line-height:1.7;margin:0 0 18px}label{display:block;font-size:13px;font-weight:700;margin:14px 0 7px}
+    input{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;font-size:16px;outline:none}input:focus{border-color:var(--primary);box-shadow:0 0 0 3px #315efb1c}
+    button{border:0;border-radius:9px;padding:11px 14px;font-weight:700;cursor:pointer}.primary{width:100%;margin-top:16px;background:var(--primary);color:#fff}.secondary{background:#edf2ff;color:var(--primary);margin-top:10px;width:100%}.danger{background:#fff0f0;color:#c53030;margin-top:10px;width:100%}
+    .sequence{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}.sequence code{display:block;color:var(--primary);line-height:1.8;word-break:break-word}.message{min-height:22px;color:var(--primary);font-size:14px;margin-top:14px}
+    .tree-card{min-width:0;overflow:hidden}.tree-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.count{color:var(--muted);font-size:14px}.tree-wrap{min-height:480px;margin-top:20px;padding:24px 10px;overflow:auto;border:1px dashed var(--line);border-radius:14px;background:linear-gradient(#fff,#fbfcff)}
+    .tree{position:relative;display:flex;justify-content:center;min-width:max-content;min-height:410px}.tree-links{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}.tree-links line{stroke:#dce4f0;stroke-width:2}.tree-content{position:relative;z-index:1;display:flex;justify-content:center}.level{display:flex;flex-direction:column;align-items:center}.node{position:relative;display:flex;flex-direction:column;align-items:center}.circle{display:grid;place-items:center;flex:none;width:52px;height:52px;border-radius:50%;background:var(--primary);color:#fff;font-size:18px;font-weight:800;box-shadow:0 5px 12px #315efb40}.children{display:flex;gap:70px;margin-top:58px;position:relative}.child{position:relative;display:flex;justify-content:center}.empty{display:grid;place-items:center;min-height:410px;color:var(--muted);text-align:center}.legend{display:flex;gap:18px;margin-top:14px;color:var(--muted);font-size:13px}.legend span:before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:currentColor}.legend .l{color:var(--left)}.legend .r{color:var(--right)}
+    .circle.visited{background:#8aa1df}.circle.current{background:#f59e0b;box-shadow:0 0 0 5px #f59e0b2b,0 5px 12px #f59e0b40}.traversal{margin-top:20px}.traversal-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.modes{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.mode{background:#f1f4f9;color:#53627a}.mode.active{color:#fff;background:var(--primary)}.playback{display:flex;gap:8px;flex-wrap:wrap}.playback button{background:#edf2ff;color:var(--primary)}.playback button.play{background:var(--primary);color:#fff}.playback button:disabled{opacity:.45;cursor:not-allowed}.progress{margin:18px 0 12px;color:var(--muted);font-size:14px}.progress b{color:var(--primary)}.walk-order{display:flex;flex-wrap:wrap;gap:8px;min-height:45px}.walk-step{display:grid;place-items:center;min-width:42px;height:36px;padding:0 10px;border-radius:9px;background:#f1f4f9;color:#65738c;font-weight:800}.walk-step.done{background:#dbe5ff;color:var(--primary)}.walk-step.now{background:#f59e0b;color:white}.walk-empty{color:var(--muted);font-size:14px;padding:9px 0}
+    @media(max-width:760px){main{margin:25px auto}.layout{grid-template-columns:1fr}.tree-wrap{min-height:360px}.empty{min-height:280px}}
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero"><h1>數字二元搜尋樹</h1><p>輸入起始數字，再依序加入數字，觀察標準樹狀結構。</p></section>
+    <div class="layout">
+      <section class="card">
+        <h2>加入數字</h2><p class="hint">小於目前節點往左，大於目前節點往右。相同數字不重複加入。</p>
+        <form id="form"><label for="number">輸入數字</label><input id="number" type="number" step="any" required placeholder="例如：50"><button class="primary">加入樹中</button></form>
+        <button class="secondary" id="demo">載入範例</button><button class="danger" id="clear">清空樹</button>
+        <div class="message" id="message"></div><div class="sequence"><label>輸入順序</label><code id="sequence">尚未輸入</code></div>
+      </section>
+      <section class="card tree-card"><div class="tree-head"><h2>樹狀結構</h2><span class="count" id="count">0 個節點</span></div><div class="tree-wrap"><div id="tree" class="empty">請先輸入第一個數字，它會成為根節點。</div></div><div class="legend"><span class="l">左：較小</span><span class="r">右：較大</span></div></section>
+    </div>
+    <section class="card traversal">
+      <div class="traversal-head"><div><h2>走訪演練</h2><p class="hint">選擇走訪模式後，可逐步或自動查看節點的拜訪順序。</p></div></div>
+      <div class="modes" role="group" aria-label="走訪模式"><button class="mode active" data-mode="preorder">前序：根 → 左 → 右</button><button class="mode" data-mode="inorder">中序：左 → 根 → 右</button><button class="mode" data-mode="postorder">後序：左 → 右 → 根</button></div>
+      <div class="playback"><button id="prev" aria-label="上一步">← 上一步</button><button class="play" id="play">▶ 自動演練</button><button id="next">下一步 →</button><button id="reset-walk">重設</button></div>
+      <div class="progress" id="progress">尚未開始走訪。</div><div class="walk-order" id="walk-order"><span class="walk-empty">請先建立樹。</span></div>
+    </section>
+  </main>
+  <script>
+    let root=null, values=[], walkMode='preorder', walkIndex=-1, walkTimer=null;
+    const $=id=>document.getElementById(id), numberText=n=>Number.isInteger(n)?String(n):String(n);
+    function insert(value){if(!root){root={value,left:null,right:null};return '根節點'}let node=root;while(true){if(value===node.value)return '重複';if(value<node.value){if(!node.left){node.left={value,left:null,right:null};return '左側';}node=node.left}else{if(!node.right){node.right={value,left:null,right:null};return '右側';}node=node.right}}}
+    function renderNode(node){if(!node)return '';const left=node.left?`<div class="child left">${renderNode(node.left)}</div>`:'';const right=node.right?`<div class="child right">${renderNode(node.right)}</div>`:'';return `<div class="level"><div class="node"><div class="circle" data-value="${node.value}">${numberText(node.value)}</div>${left||right?`<div class="children">${left}${right}</div>`:''}</div></div>`}
+    function edges(node,result=[]){if(!node)return result;if(node.left){result.push([node.value,node.left.value]);edges(node.left,result)}if(node.right){result.push([node.value,node.right.value]);edges(node.right,result)}return result}
+    function drawLines(){const tree=$('tree');const svg=tree.querySelector('.tree-links');if(!svg||!root)return;const treeBox=tree.getBoundingClientRect();svg.setAttribute('viewBox',`0 0 ${tree.clientWidth} ${tree.clientHeight}`);svg.innerHTML='';edges(root).forEach(([parent,child])=>{const a=tree.querySelector(`[data-value="${parent}"]`).getBoundingClientRect(),b=tree.querySelector(`[data-value="${child}"]`).getBoundingClientRect();let x1=a.left+a.width/2-treeBox.left,y1=a.top+a.height/2-treeBox.top,x2=b.left+b.width/2-treeBox.left,y2=b.top+b.height/2-treeBox.top;const distance=Math.hypot(x2-x1,y2-y1),cut=27;if(distance>cut*2){const dx=(x2-x1)/distance,dy=(y2-y1)/distance;x1+=dx*cut;y1+=dy*cut;x2-=dx*cut;y2-=dy*cut}svg.insertAdjacentHTML('beforeend',`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`)})}
+    function traversal(node,mode,result=[]){if(!node)return result;if(mode==='preorder')result.push(node.value);traversal(node.left,mode,result);if(mode==='inorder')result.push(node.value);traversal(node.right,mode,result);if(mode==='postorder')result.push(node.value);return result}
+    function stopWalk(){clearInterval(walkTimer);walkTimer=null;$('play').textContent='▶ 自動演練'}
+    function resetWalk(){stopWalk();walkIndex=-1;renderWalk()}
+    function renderWalk(){const order=traversal(root,walkMode);const running=walkTimer!==null;$('play').disabled=!order.length;$('prev').disabled=!order.length||walkIndex<0;$('next').disabled=!order.length||walkIndex>=order.length-1;$('reset-walk').disabled=!order.length;$('play').textContent=running?'⏸ 暫停':'▶ 自動演練';$('progress').innerHTML=order.length?(walkIndex<0?'準備開始走訪。':`目前走訪第 <b>${walkIndex+1}</b> / ${order.length} 個節點：<b>${numberText(order[walkIndex])}</b>`):'請先建立樹。';$('walk-order').innerHTML=order.length?order.map((value,i)=>`<span class="walk-step ${i<walkIndex?'done':''} ${i===walkIndex?'now':''}">${numberText(value)}</span>`).join(''):'<span class="walk-empty">請先建立樹。</span>';document.querySelectorAll('.circle').forEach(circle=>{const i=order.indexOf(Number(circle.dataset.value));circle.classList.toggle('visited',i>=0&&i<walkIndex);circle.classList.toggle('current',i===walkIndex)})}
+    function render(){ $('tree').className=root?'tree':'empty';$('tree').innerHTML=root?`<svg class="tree-links" aria-hidden="true"></svg><div class="tree-content">${renderNode(root)}</div>`:'請先輸入第一個數字，它會成為根節點。';$('count').textContent=`${values.length} 個節點`;$('sequence').textContent=values.length?values.join(' → '):'尚未輸入';requestAnimationFrame(()=>{drawLines();renderWalk()}); }
+    $('form').addEventListener('submit',e=>{e.preventDefault();const value=Number($('number').value);if(!Number.isFinite(value))return;const result=insert(value);if(result==='重複'){$('message').textContent='這個數字已經存在，沒有重複加入。'}else{values.push(value);resetWalk();$('message').textContent=values.length===1?'已建立根節點。':`已加入${result}。`;render();}$('number').value='';$('number').focus()});
+    $('demo').addEventListener('click',()=>{root=null;values=[];[50,30,70,20,40,60,80].forEach(v=>{insert(v);values.push(v)});resetWalk();$('message').textContent='已載入範例資料。';render()});$('clear').addEventListener('click',()=>{root=null;values=[];resetWalk();$('message').textContent='已清空樹。';render()});
+    document.querySelectorAll('.mode').forEach(button=>button.addEventListener('click',()=>{walkMode=button.dataset.mode;document.querySelectorAll('.mode').forEach(item=>item.classList.toggle('active',item===button));resetWalk()}));
+    $('next').addEventListener('click',()=>{const order=traversal(root,walkMode);if(walkIndex<order.length-1){walkIndex++;renderWalk()}else stopWalk()});$('prev').addEventListener('click',()=>{if(walkIndex>=0){walkIndex--;renderWalk()}});$('reset-walk').addEventListener('click',resetWalk);$('play').addEventListener('click',()=>{if(walkTimer){stopWalk();renderWalk();return}const order=traversal(root,walkMode);if(!order.length)return;if(walkIndex>=order.length-1)walkIndex=-1;walkTimer=setInterval(()=>{if(walkIndex>=order.length-1){stopWalk();renderWalk();return}walkIndex++;renderWalk()},850);renderWalk()});window.addEventListener('resize',()=>requestAnimationFrame(drawLines));renderWalk();
+  </script>
+</body>
+</html>
