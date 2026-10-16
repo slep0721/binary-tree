@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Max Heap 最大堆視覺化</title>
+  <style>
+    :root{--bg:#f4f7fb;--card:#fff;--ink:#172033;--muted:#6b7890;--primary:#315efb;--line:#dce4f0;--accent:#f59e0b}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif}
+    main{width:min(1100px,92%);margin:42px auto}.hero{margin-bottom:22px}.hero h1{margin:0 0 8px;font-size:clamp(28px,5vw,44px)}.hero p{margin:0;color:var(--muted)}
+    .layout{display:grid;grid-template-columns:300px 1fr;gap:20px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 10px 25px #1720330b}
+    h2{font-size:19px;margin:0 0 8px}.hint{font-size:13px;color:var(--muted);line-height:1.7;margin:0 0 18px}label{display:block;font-size:13px;font-weight:700;margin:14px 0 7px}
+    input{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;font-size:16px;outline:none}input:focus{border-color:var(--primary);box-shadow:0 0 0 3px #315efb1c}
+    button{border:0;border-radius:9px;padding:11px 14px;font-weight:700;cursor:pointer}.primary{width:100%;margin-top:16px;background:var(--primary);color:#fff}.secondary{background:#edf2ff;color:var(--primary);margin-top:10px;width:100%}.danger{background:#fff0f0;color:#c53030;margin-top:10px;width:100%}.extract{background:#fff4db;color:#9a5b00;margin-top:10px;width:100%}.message{min-height:22px;color:var(--primary);font-size:14px;margin-top:14px}
+    .sequence{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}.sequence code{display:block;color:var(--primary);line-height:1.8;word-break:break-word}.tree-card{min-width:0;overflow:hidden}.tree-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.count{color:var(--muted);font-size:14px}.tree-wrap{min-height:480px;margin-top:20px;padding:24px 10px;overflow:auto;border:1px dashed var(--line);border-radius:14px;background:linear-gradient(#fff,#fbfcff)}
+    .tree{position:relative;display:flex;justify-content:center;min-width:max-content;min-height:410px}.tree-links{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}.tree-links line{stroke:#dce4f0;stroke-width:2}.tree-content{position:relative;z-index:1;display:flex;justify-content:center}.level{display:flex;flex-direction:column;align-items:center}.node{position:relative;display:flex;flex-direction:column;align-items:center}.circle{display:grid;place-items:center;flex:none;width:52px;height:52px;border-radius:50%;background:var(--primary);color:#fff;font-size:18px;font-weight:800;box-shadow:0 5px 12px #315efb40}.circle.root{background:var(--accent);box-shadow:0 5px 12px #f59e0b40}.children{display:flex;gap:70px;margin-top:58px;position:relative}.child{position:relative;display:flex;justify-content:center;flex:1;min-width:52px}.child:empty{visibility:hidden}.empty{display:grid;place-items:center;min-height:410px;color:var(--muted);text-align:center}.legend{display:flex;gap:18px;margin-top:14px;color:var(--muted);font-size:13px}.legend span:before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:currentColor}.legend .root-key{color:var(--accent)}
+    .note{margin-top:20px;color:var(--muted);font-size:14px;line-height:1.7}.note code{color:var(--primary)}.complexity{margin-top:20px}.complexity h2{margin-bottom:14px}.complexity-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.complexity-item{padding:14px;border:1px solid var(--line);border-radius:12px;background:#fbfcff}.complexity-item span{display:block;color:var(--muted);font-size:13px}.complexity-item strong{display:block;margin-top:5px;color:var(--primary);font-size:20px}.complexity-foot{margin:14px 0 0;color:var(--muted);font-size:13px}@media(max-width:760px){main{margin:25px auto}.layout{grid-template-columns:1fr}.tree-wrap{min-height:360px}.empty{min-height:280px}.complexity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero"><h1>Max Heap 最大堆</h1><p>新增數值後即時調整堆積，觀察最大值如何維持在根節點。</p></section>
+    <div class="layout">
+      <section class="card">
+        <h2>操作最大堆</h2><p class="hint">最大堆會保持每個父節點都大於或等於其子節點。相同數值可以重複加入。</p>
+        <form id="form"><label for="number">輸入數值</label><input id="number" type="number" step="any" required placeholder="例如：42"><button class="primary">加入最大堆</button></form>
+        <button class="extract" id="extract">取出最大值</button><button class="secondary" id="demo">載入範例</button><button class="danger" id="clear">清空最大堆</button>
+        <div class="message" id="message" aria-live="polite"></div><div class="sequence"><label>堆積陣列</label><code id="sequence">[]</code></div>
+      </section>
+      <section class="card tree-card"><div class="tree-head"><h2>樹狀表示</h2><span class="count" id="count">0 個節點</span></div><div class="tree-wrap"><div id="tree" class="empty">請加入數值，開始建立 Max Heap。</div></div><div class="legend"><span class="root-key">根節點（目前最大值）</span></div></section>
+    </div>
+    <section class="card note"><strong>陣列索引規則：</strong>若節點索引為 <code>i</code>，左子節點在 <code>2i + 1</code>，右子節點在 <code>2i + 2</code>，父節點在 <code>⌊(i - 1) / 2⌋</code>。</section>
+    <section class="card complexity"><h2>堆積操作複雜度</h2><div class="complexity-grid"><div class="complexity-item"><span>插入</span><strong>O(log n)</strong></div><div class="complexity-item"><span>取出最大值</span><strong>O(log n)</strong></div><div class="complexity-item"><span>查看最大值</span><strong>O(1)</strong></div><div class="complexity-item"><span>空間複雜度</span><strong>O(n)</strong></div></div><p class="complexity-foot">n 為堆積中的節點數；插入與取出最多沿樹高調整，最大堆的樹高為 O(log n)。</p></section>
+  </main>
+  <script src="max-heap.js"></script>
+  <script>
+    const heap = new MaxHeap();
+    const $ = id => document.getElementById(id);
+    const numberText = value => String(value);
+
+    function renderNode(index, values) {
+      if (index >= values.length) return '';
+      const left = index * 2 + 1;
+      const right = left + 1;
+      const children = left < values.length || right < values.length
+        ? `<div class="children"><div class="child">${left < values.length ? renderNode(left, values) : ''}</div><div class="child">${right < values.length ? renderNode(right, values) : ''}</div></div>`
+        : '';
+      return `<div class="level"><div class="node"><div class="circle ${index === 0 ? 'root' : ''}" data-index="${index}">${numberText(values[index])}</div>${children}</div></div>`;
+    }
+
+    function edges(index, result = []) {
+      const left = index * 2 + 1;
+      const right = left + 1;
+      if (left < heap.size) { result.push([index, left]); edges(left, result); }
+      if (right < heap.size) { result.push([index, right]); edges(right, result); }
+      return result;
+    }
+
+    function drawLines() {
+      const tree = $('tree');
+      const svg = tree.querySelector('.tree-links');
+      if (!svg || !heap.size) return;
+      const treeBox = tree.getBoundingClientRect();
+      svg.setAttribute('viewBox', `0 0 ${tree.clientWidth} ${tree.clientHeight}`);
+      svg.innerHTML = '';
+      edges(0).forEach(([parent, child]) => {
+        const a = tree.querySelector(`[data-index="${parent}"]`).getBoundingClientRect();
+        const b = tree.querySelector(`[data-index="${child}"]`).getBoundingClientRect();
+        let x1 = a.left + a.width / 2 - treeBox.left;
+        let y1 = a.top + a.height / 2 - treeBox.top;
+        let x2 = b.left + b.width / 2 - treeBox.left;
+        let y2 = b.top + b.height / 2 - treeBox.top;
+        const distance = Math.hypot(x2 - x1, y2 - y1);
+        if (distance > 52) {
+          const dx = (x2 - x1) / distance;
+          const dy = (y2 - y1) / distance;
+          x1 += dx * 27; y1 += dy * 27; x2 -= dx * 27; y2 -= dy * 27;
+        }
+        svg.insertAdjacentHTML('beforeend', `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`);
+      });
+    }
+
+    function render() {
+      const values = heap.toArray();
+      const tree = $('tree');
+      tree.className = values.length ? 'tree' : 'empty';
+      tree.innerHTML = values.length
+        ? `<svg class="tree-links" aria-hidden="true"></svg><div class="tree-content">${renderNode(0, values)}</div>`
+        : '請加入數值，開始建立 Max Heap。';
+      $('count').textContent = `${heap.size} 個節點`;
+      $('sequence').textContent = `[${values.join(', ')}]`;
+      $('extract').disabled = !heap.size;
+      requestAnimationFrame(drawLines);
+    }
+
+    $('form').addEventListener('submit', event => {
+      event.preventDefault();
+      const value = Number($('number').value);
+      if (!Number.isFinite(value)) return;
+      heap.insert(value);
+      $('message').textContent = `已加入 ${numberText(value)}，最大值為 ${numberText(heap.peek())}。`;
+      $('number').value = '';
+      render();
+      $('number').focus();
+    });
+
+    $('extract').addEventListener('click', () => {
+      const maximum = heap.extractMax();
+      $('message').textContent = `已取出最大值 ${numberText(maximum)}${heap.size ? `，新的最大值為 ${numberText(heap.peek())}` : '，最大堆目前為空'}。`;
+      render();
+    });
+
+    $('demo').addEventListener('click', () => {
+      while (heap.size) heap.extractMax();
+      [50, 30, 70, 20, 40, 60, 80].forEach(value => heap.insert(value));
+      $('message').textContent = '已載入範例數值。';
+      render();
+    });
+
+    $('clear').addEventListener('click', () => {
+      while (heap.size) heap.extractMax();
+      $('message').textContent = '最大堆已清空。';
+      render();
+    });
+
+    window.addEventListener('resize', () => requestAnimationFrame(drawLines));
+    render();
+  </script>
+</body>
+</html>
