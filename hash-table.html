@@ -1,0 +1,158 @@
+﻿<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>雜湊表｜鏈結法</title>
+  <style>
+    :root{--bg:#f3f6fc;--card:#fff;--ink:#182238;--muted:#68758d;--line:#dce4f0;--primary:#4f46e5;--soft:#eef0ff;--accent:#0f766e}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif}main{width:min(1050px,92%);margin:40px auto}.hero{margin-bottom:22px}.hero h1{margin:0 0 8px;font-size:clamp(28px,5vw,42px)}.hero p{margin:0;color:var(--muted);line-height:1.7}.layout{display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 10px 25px #1720330b}h2{font-size:19px;margin:0 0 8px}.hint{font-size:13px;color:var(--muted);line-height:1.7;margin:0 0 18px}label{display:block;font-size:13px;font-weight:700;margin:14px 0 7px}textarea,input{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;font:inherit;line-height:1.5;outline:none}textarea{resize:vertical}textarea:focus,input:focus{border-color:var(--primary);box-shadow:0 0 0 3px #4f46e51c}.single-row{display:flex;gap:8px}.single-row input{min-width:0}.single-row button{flex:none;background:var(--primary);color:#fff}button{border:0;border-radius:9px;padding:11px 14px;font:inherit;font-weight:700;cursor:pointer}button:disabled{opacity:.55;cursor:wait}.primary{width:100%;margin-top:14px;background:var(--primary);color:#fff}.secondary{width:100%;margin-top:10px;background:var(--soft);color:var(--primary)}.danger{width:100%;margin-top:10px;background:#fff0f0;color:#c53030}.message{min-height:24px;margin-top:14px;color:var(--accent);font-size:14px;line-height:1.6}.formula{padding:12px;border-radius:10px;background:#f6f7fb;color:var(--muted);font-size:13px;line-height:1.8}.formula code{color:var(--primary);font-weight:700}.table-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.count{color:var(--muted);font-size:14px}.buckets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.bucket{display:grid;grid-template-columns:48px 1fr;align-items:center;gap:12px;min-height:68px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fcfdff}.index{display:grid;place-items:center;width:42px;height:42px;border-radius:11px;background:#edf0ff;color:var(--primary);font-weight:800}.chain{display:flex;align-items:center;flex-wrap:wrap;gap:7px;min-width:0}.empty{color:#a0aabc;font-size:13px}.value{display:inline-grid;place-items:center;min-width:38px;height:36px;padding:0 10px;border-radius:18px;background:var(--primary);color:#fff;font-weight:750}.arrow{color:#95a0b3;font-weight:700}.bucket.highlight{border-color:#a5b4fc;background:#f6f7ff;animation:flash .75s ease-out}@keyframes flash{from{box-shadow:0 0 0 4px #4f46e544}to{box-shadow:0 0 0 0 #4f46e500}}.footer{margin-top:15px;color:var(--muted);font-size:13px;line-height:1.7}
+    @media(max-width:760px){main{margin:25px auto}.layout{grid-template-columns:1fr}.buckets{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <h1>雜湊表：鏈結法</h1>
+      <p>一次輸入至少 15 個自訂整數，以除以 13 的餘數決定桶位；發生碰撞時，數值會依序接在同一條鏈結上。</p>
+    </header>
+    <div class="layout">
+      <section class="card" aria-labelledby="input-title">
+        <h2 id="input-title">輸入數值</h2>
+        <p class="hint">可逐個輸入或一次貼上多個數值。累積至少 15 個整數後即可建立雜湊表。</p>
+        <form id="single-form">
+          <label for="single-number">逐個輸入整數 <span id="input-progress">（0/15）</span></label>
+          <div class="single-row">
+            <input id="single-number" type="number" step="1" placeholder="輸入一個整數" inputmode="numeric">
+            <button type="submit">加入</button>
+          </div>
+        </form>
+        <p class="hint" style="margin:10px 0 0">已輸入的數值：<span id="entered-list">尚未輸入</span></p>
+        <form id="form">
+          <label for="numbers">至少 15 個整數</label>
+          <textarea id="numbers" required rows="5" placeholder="例如：18, 5, 31, 44, 7, 20, -8, 6, 19, 32, 45, 58, 71, 84, 97"></textarea>
+          <button class="primary" type="submit">建立雜湊表</button>
+        </form>
+        <button class="secondary" id="demo" type="button">演示：逐步加入 15 個數字</button>
+        <button class="danger" id="clear" type="button">清空雜湊表</button>
+        <div class="message" id="message" role="status" aria-live="polite"></div>
+        <div class="formula">雜湊函數<br><code>h(數值) = ((數值 % 13) + 13) % 13</code><br>負數也會對應到 0～12 的桶位。</div>
+      </section>
+      <section class="card" aria-labelledby="table-title">
+        <div class="table-head"><h2 id="table-title">桶位與鏈結</h2><span class="count" id="count">共 0 個數值</span></div>
+        <div class="buckets" id="buckets" aria-label="雜湊表桶位"></div>
+        <p class="footer">每個桶位代表一個餘數；箭頭表示鏈結順序。相同餘數的數值會接在同一條鏈上。</p>
+      </section>
+    </div>
+  </main>
+  <script>
+    const SIZE = 13;
+    const table = Array.from({ length: SIZE }, () => []);
+    const $ = id => document.getElementById(id);
+    const bucketIndex = value => ((value % SIZE) + SIZE) % SIZE;
+    let demoTimer = null;
+    let enteredValues = [];
+
+    function render(highlight = -1) {
+      $('buckets').innerHTML = table.map((chain, index) => `
+        <div class="bucket ${index === highlight ? 'highlight' : ''}" id="bucket-${index}">
+          <div class="index">${index}</div>
+          <div class="chain" aria-label="桶位 ${index} 的鏈結">
+            ${chain.length ? chain.map((value, i) => `${i ? '<span class="arrow" aria-hidden="true">→</span>' : ''}<span class="value">${value}</span>`).join('') : '<span class="empty">空</span>'}
+          </div>
+        </div>`).join('');
+      const total = table.reduce((sum, chain) => sum + chain.length, 0);
+      $('count').textContent = `共 ${total} 個數值`;
+    }
+
+    function clearTable() {
+      table.forEach(chain => chain.splice(0));
+      render();
+    }
+
+    function renderEnteredValues() {
+      $('input-progress').textContent = `（${enteredValues.length}/15）`;
+      $('entered-list').textContent = enteredValues.length ? enteredValues.join(', ') : '尚未輸入';
+    }
+
+    $('single-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const raw = $('single-number').value;
+      const value = Number(raw);
+      if (raw === '' || !Number.isSafeInteger(value)) {
+        $('message').textContent = '請輸入安全範圍內的整數。';
+        return;
+      }
+      enteredValues.push(value);
+      renderEnteredValues();
+      $('single-form').reset();
+      $('single-number').focus();
+      $('message').textContent = enteredValues.length < 15
+        ? `已輸入 ${enteredValues.length} 個，還需要 ${15 - enteredValues.length} 個。`
+        : `已輸入 ${enteredValues.length} 個，現在可以建立雜湊表。`;
+    });
+
+    $('form').addEventListener('submit', event => {
+      event.preventDefault();
+      if (demoTimer) { clearInterval(demoTimer); demoTimer = null; $('demo').disabled = false; }
+      const tokens = $('numbers').value.trim().split(/[\s,，、]+/).filter(Boolean);
+      if (tokens.length < 15) {
+        $('message').textContent = `目前輸入 ${tokens.length} 個，至少需要 15 個整數。`;
+        return;
+      }
+      const values = tokens.map(token => Number(token));
+      if (values.some(value => !Number.isSafeInteger(value))) {
+        $('message').textContent = '請確認每一項都是安全範圍內的整數。';
+        return;
+      }
+      enteredValues = values;
+      renderEnteredValues();
+      clearTable();
+      values.forEach(value => table[bucketIndex(value)].push(value));
+      render();
+      $('message').textContent = `已加入 ${values.length} 個數字，並依輸入順序建立鏈結。`;
+    });
+
+    $('demo').addEventListener('click', () => {
+      if (demoTimer) clearInterval(demoTimer);
+      clearTable();
+      const values = [18, 5, 31, 44, 7, 20, -8, 26, 39, 52, 65, 78, 91, 104, 117];
+      $('numbers').value = values.join(', ');
+      enteredValues = [];
+      renderEnteredValues();
+      let step = 0;
+      $('demo').disabled = true;
+      $('message').textContent = '演示開始：逐一將 15 個數字加入雜湊表。';
+      demoTimer = setInterval(() => {
+        const value = values[step];
+        enteredValues.push(value);
+        renderEnteredValues();
+        const index = bucketIndex(value);
+        const collision = table[index].length > 0;
+        table[index].push(value);
+        render(index);
+        step += 1;
+        $('message').textContent = `第 ${step}/15 個：${value} % 13 = ${index}${collision ? '，發生碰撞並接到鏈結末端。' : `，加入桶位 ${index}。`}`;
+        if (step === values.length) {
+          clearInterval(demoTimer);
+          demoTimer = null;
+          $('demo').disabled = false;
+          $('message').textContent += ' 演示完成。';
+        }
+      }, 450);
+    });
+
+    $('clear').addEventListener('click', () => {
+      if (demoTimer) { clearInterval(demoTimer); demoTimer = null; $('demo').disabled = false; }
+      enteredValues = [];
+      renderEnteredValues();
+      clearTable();
+      $('message').textContent = '雜湊表已清空。';
+      $('numbers').focus();
+    });
+
+    render();
+    renderEnteredValues();
+  </script>
+</body>
+</html>
