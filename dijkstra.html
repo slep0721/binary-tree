@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="用互動圖解學習 Dijkstra 最短路徑、優先佇列、過期條目與 parent 路徑還原。">
+  <title>Dijkstra 最短路徑｜互動圖解</title>
+  <style>
+    :root{--bg:#edf2f6;--paper:#fff;--ink:#193047;--muted:#71869a;--line:#d5dfe7;--blue:#2877b8;--green:#16866b;--amber:#e99b10;--red:#c94b4b;--soft:#e8f1f8}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif}
+    main{width:min(1180px,94%);margin:30px auto 42px}
+    .nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+    .nav a{padding:9px 12px;border-radius:9px;background:#e1ebf3;color:var(--blue);font-size:13px;font-weight:750;text-decoration:none}
+    .hero{margin-bottom:18px}
+    .hero h1{font-size:clamp(28px,4vw,38px);margin:0 0 7px}
+    .hero p{margin:0;color:var(--muted);line-height:1.7}
+    .layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(310px,.85fr);gap:16px;align-items:start}
+    .panel{min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 8px 22px #1930470b}
+    .panel h2{font-size:17px;margin:0 0 5px}
+    .caption{font-size:13px;color:var(--muted);line-height:1.7;margin:0 0 12px}
+    .graph-wrap{overflow:auto;border-radius:12px;background:#dce5ed}
+    .graph{display:block;width:100%;min-width:560px;height:auto}
+    .edge-line{stroke:#b9c8d4;stroke-width:3;transition:stroke .18s,stroke-width .18s}
+    .edge-group.parent .edge-line{stroke:var(--green);stroke-width:4}
+    .edge-group.active .edge-line{stroke:var(--amber);stroke-width:7}
+    .edge-group.path .edge-line{stroke:var(--green);stroke-width:7}
+    .edge-weight{font-size:15px;font-weight:800;text-anchor:middle;dominant-baseline:central;fill:#60788c;paint-order:stroke;stroke:#dce5ed;stroke-width:5px;stroke-linejoin:round}
+    .edge-group.active .edge-weight{fill:#9a6200}
+    .edge-group.path .edge-weight{fill:#08795f}
+    .node circle{fill:#f9fcff;stroke:#2877b8;stroke-width:3;transition:fill .18s,stroke .18s}
+    .node.source circle{fill:#ffe7d9;stroke:#cf651b}
+    .node.settled circle{fill:#ccecdf;stroke:var(--green)}
+    .node.focus circle{fill:#ffe3a8;stroke:var(--amber);stroke-width:4}
+    .node-letter{font-size:19px;font-weight:850;text-anchor:middle;dominant-baseline:central;fill:var(--ink)}
+    .node-index{font-size:12px;font-weight:750;text-anchor:middle;fill:#60788c}
+    .distance{font-size:15px;font-weight:850;text-anchor:middle;fill:#71869a}
+    .node.source .distance{fill:#a84d13}
+    .node.settled .distance{fill:#08795f}
+    .legend{display:flex;gap:13px;flex-wrap:wrap;margin-top:11px;color:var(--muted);font-size:12px}
+    .legend span{display:inline-flex;align-items:center;gap:5px}
+    .legend i{width:17px;height:4px;border-radius:3px;background:#b9c8d4}
+    .legend .parent i,.legend .path i{background:var(--green)}
+    .legend .active i{height:6px;background:var(--amber)}
+    .controls-title{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .count{color:var(--muted);font-size:12px}
+    .playback{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+    .playback button{border:0;border-radius:8px;padding:9px 11px;background:#e8f1f8;color:var(--blue);font:inherit;font-size:13px;font-weight:750;cursor:pointer}
+    .playback button.primary{background:var(--blue);color:white}
+    .playback button:disabled{opacity:.42;cursor:not-allowed}
+    .progress{height:5px;margin:14px 0;background:#e8edf2;border-radius:5px;overflow:hidden}
+    .progress i{display:block;width:0;height:100%;background:var(--blue);transition:width .18s}
+    .message{min-height:65px;margin:12px 0 7px;padding:11px 12px;border-radius:10px;background:#f4f7fa;font-size:14px;line-height:1.7}
+    .queue{display:flex;gap:6px;flex-wrap:wrap;min-height:31px;margin:8px 0}
+    .queue-chip{padding:5px 8px;border-radius:7px;background:#e8f1f8;color:#315c7e;font:700 12px ui-monospace,Consolas,monospace}
+    .queue-chip:first-child{background:#d9f0e7;color:#08795f}
+    .empty{color:#97a7b5;font-size:13px;padding:5px 0}
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{padding:7px 8px;border-bottom:1px solid #edf1f4;text-align:left;white-space:nowrap}
+    th{color:var(--muted);font-size:11px;letter-spacing:.03em}
+    td code{font:700 12px ui-monospace,Consolas,monospace}
+    tr.settled td:last-child{color:var(--green);font-weight:750}
+    .result{margin-top:13px;padding:12px;border:1px solid #dbe7ef;border-radius:10px;background:#f8fbfd;font-size:13px;line-height:1.8}
+    .result strong{color:var(--green)}
+    .explanation{margin-top:16px}
+    .explanation p{font-size:14px;line-height:1.8;margin:9px 0}
+    .example{padding:11px 12px;border-radius:9px;background:#f4f7fa;font-size:13px;line-height:1.8}
+    .source{margin-top:16px}
+    .source summary{cursor:pointer;color:var(--blue);font-size:14px;font-weight:800}
+    .source p{color:var(--muted);font-size:13px;line-height:1.7}
+    .source a{color:var(--blue);font-weight:750}
+    .source pre{overflow:auto;padding:14px;border-radius:10px;background:#172b3b;color:#e3edf5;font-size:12px;line-height:1.7}
+    @media(max-width:820px){main{margin:22px auto}.layout{grid-template-columns:1fr}.graph{min-width:520px}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <main>
+    <nav class="nav" aria-label="其他圖解">
+      <a href="./index.html">二元搜尋樹</a>
+      <a href="./dfs-bfs.html">DFS / BFS</a>
+      <a href="./minimum-spanning-tree.html">最小生成樹</a>
+      <a href="./hash-table.html">雜湊表</a>
+    </nav>
+    <header class="hero">
+      <h1>Dijkstra 最短路徑</h1>
+      <p>從節點 0 出發，逐步觀察最小堆、距離鬆弛、過期條目，以及 parent[] 如何還原路徑。</p>
+    </header>
+    <div class="layout">
+      <section class="panel" aria-labelledby="graph-title">
+        <h2 id="graph-title">無向加權圖</h2>
+        <p class="caption">圓圈內是節點編號，圓圈上方是目前 dist。邊上的數字是權重；節點 0 為起點，節點 5 為終點。</p>
+        <div class="graph-wrap">
+          <svg class="graph" viewBox="0 0 760 420" role="img" aria-labelledby="svg-title svg-desc">
+            <title id="svg-title">Dijkstra 範例圖，起點 0，終點 5</title>
+            <desc id="svg-desc">節點 0 到 5 的無向加權圖，所有邊權重皆為非負數。</desc>
+            <g id="edge-0-1" class="edge-group"><line class="edge-line" x1="90" y1="205" x2="270" y2="85"/><text class="edge-weight" x="178" y="126">2</text></g>
+            <g id="edge-0-2" class="edge-group"><line class="edge-line" x1="90" y1="205" x2="270" y2="325"/><text class="edge-weight" x="178" y="284">5</text></g>
+            <g id="edge-1-2" class="edge-group"><line class="edge-line" x1="270" y1="85" x2="270" y2="325"/><text class="edge-weight" x="250" y="205">1</text></g>
+            <g id="edge-1-3" class="edge-group"><line class="edge-line" x1="270" y1="85" x2="500" y2="85"/><text class="edge-weight" x="385" y="64">4</text></g>
+            <g id="edge-2-4" class="edge-group"><line class="edge-line" x1="270" y1="325" x2="500" y2="325"/><text class="edge-weight" x="385" y="345">2</text></g>
+            <g id="edge-3-4" class="edge-group"><line class="edge-line" x1="500" y1="85" x2="500" y2="325"/><text class="edge-weight" x="520" y="205">1</text></g>
+            <g id="edge-3-5" class="edge-group"><line class="edge-line" x1="500" y1="85" x2="680" y2="205"/><text class="edge-weight" x="592" y="126">3</text></g>
+            <g id="edge-4-5" class="edge-group"><line class="edge-line" x1="500" y1="325" x2="680" y2="205"/><text class="edge-weight" x="592" y="284">6</text></g>
+            <g id="node-0" class="node source"><text id="distance-0" class="distance" x="90" y="157">0</text><circle cx="90" cy="205" r="27"/><text class="node-letter" x="90" y="205">0</text><text class="node-index" x="90" y="251">A・起點</text></g>
+            <g id="node-1" class="node"><text id="distance-1" class="distance" x="270" y="37">∞</text><circle cx="270" cy="85" r="27"/><text class="node-letter" x="270" y="85">1</text><text class="node-index" x="270" y="131">B</text></g>
+            <g id="node-2" class="node"><text id="distance-2" class="distance" x="270" y="277">∞</text><circle cx="270" cy="325" r="27"/><text class="node-letter" x="270" y="325">2</text><text class="node-index" x="270" y="371">C</text></g>
+            <g id="node-3" class="node"><text id="distance-3" class="distance" x="500" y="37">∞</text><circle cx="500" cy="85" r="27"/><text class="node-letter" x="500" y="85">3</text><text class="node-index" x="500" y="131">D</text></g>
+            <g id="node-4" class="node"><text id="distance-4" class="distance" x="500" y="277">∞</text><circle cx="500" cy="325" r="27"/><text class="node-letter" x="500" y="325">4</text><text class="node-index" x="500" y="371">E</text></g>
+            <g id="node-5" class="node"><text id="distance-5" class="distance" x="680" y="157">∞</text><circle cx="680" cy="205" r="27"/><text class="node-letter" x="680" y="205">5</text><text class="node-index" x="680" y="251">F・終點</text></g>
+          </svg>
+        </div>
+        <div class="legend" aria-label="圖例">
+          <span><i></i>尚未選取</span><span class="parent"><i></i>目前 parent 邊</span><span class="active"><i></i>正在檢查</span><span class="path"><i></i>最短路徑</span>
+        </div>
+      </section>
+      <aside class="panel" aria-labelledby="control-title">
+        <div class="controls-title"><h2 id="control-title">逐步演練</h2><span id="step-count" class="count"></span></div>
+        <div class="playback" role="group" aria-label="演練控制">
+          <button id="previous" type="button" aria-label="上一步">← 上一步</button>
+          <button id="next" class="primary" type="button">下一步 →</button>
+          <button id="play" type="button">▶ 自動播放</button>
+          <button id="reset" type="button">↺ 重設</button>
+        </div>
+        <div class="progress" aria-hidden="true"><i id="progress-fill"></i></div>
+        <div id="message" class="message" role="status" aria-live="polite"></div>
+        <div class="control-label">最小堆（dist, node）</div>
+        <div id="queue" class="queue"></div>
+        <div class="control-label">dist[]、parent[] 與狀態</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>節點</th><th>dist</th><th>parent</th><th>狀態</th></tr></thead>
+            <tbody id="distance-rows"></tbody>
+          </table>
+        </div>
+        <div class="result"><strong>範例答案</strong><br>dist[5] = 9<br>路徑：0 → 1 → 3 → 5</div>
+      </aside>
+    </div>
+    <section class="panel explanation" aria-labelledby="why-title">
+      <h2 id="why-title">為什麼取出的節點距離就定案？</h2>
+      <p>前提是所有邊權重都非負。假設最小堆取出尚未定案的節點 u，當時 dist[u] 是所有候選距離中最小的。已定案節點的邊都檢查過了；若還有一條更短的路，從起點沿那條路走時，必定會先碰到一個尚未定案的邊界節點 x。</p>
+      <p>因為邊權重非負，走到 x 的路段長度不會大於整條更短路，所以 x 的候選 dist 應小於 dist[u]。那麼最小堆就應該先取出 x，與 u 已經是最小值矛盾。換句話說，任何尚未檢查的替代路，都得先經過 dist 至少和 dist[u] 一樣大的未定案節點；再加上非負邊權，不可能讓 u 變得更短。</p>
+      <div class="example">看這張圖抵達 5：從 3 走過來是 dist[3] + 3 = 6 + 3 = 9；經過 4 的另一條路是 dist[4] + 6 = 5 + 6 = 11。節點 4 雖然 dist 比 9 小，但那條完整路徑長度是 11，因此 dist[5] = 9 定案。較小的 dist 前綴都已在它們取出時鬆弛過；剩下未定案的替代路會先經過 dist 不小於目前最小值的節點。</div>
+    </section>
+    <details class="panel source">
+      <summary>C++ 原始碼與編譯方式</summary>
+      <p>完整程式使用鄰接串列 vector&lt;vector&lt;pair&lt;int,int&gt;&gt;&gt;、priority_queue 搭配 greater&lt;&gt; 最小堆，並用 parent[] 還原路徑。</p>
+      <p><a href="./dijkstra.cpp" download>下載完整 dijkstra.cpp</a></p>
+      <p>使用 g++ 編譯並執行：</p>
+      <pre><code>g++ -std=c++17 -O2 dijkstra.cpp -o dijkstra
+./dijkstra
+
+// 過期條目：目前距離已更短，跳過（lazy deletion）
+if (currentDist != dist[node]) continue;
+
+// 發現更短距離時同步更新距離與路徑前驅
+dist[neighbor] = candidate;
+parent[neighbor] = node;
+minHeap.push({candidate, neighbor});</code></pre>
+    </details>
+  </main>
+  <script>
+    const nodeNames = ['A', 'B', 'C', 'D', 'E', 'F'];
+    const edges = [
+      [0,1,2], [0,2,5], [1,2,1], [1,3,4],
+      [2,4,2], [4,3,1], [3,5,3], [4,5,6]
+    ];
+    const byId = id => document.getElementById(id);
+    const edgeKey = (u,v) => Math.min(u,v) + '-' + Math.max(u,v);
+    const showDist = value => value === Infinity ? '∞' : String(value);
+    const compare = (a,b) => a[0] - b[0] || a[1] - b[1];
+    let steps = [], stepIndex = 0, timer = null;
+
+    function buildSteps() {
+      const graph = Array.from({length:nodeNames.length}, () => []);
+      edges.forEach(function(edge) {
+        const u=edge[0], v=edge[1], w=edge[2];
+        graph[u].push([v,w]);
+        graph[v].push([u,w]);
+      });
+      const dist=Array(nodeNames.length).fill(Infinity);
+      const parent=Array(nodeNames.length).fill(-1);
+      const settled=Array(nodeNames.length).fill(false);
+      const heap=[[0,0]];
+      const result=[];
+      function record(type, data) {
+        result.push(Object.assign({
+          type:type,
+          dist:dist.slice(),
+          parent:parent.slice(),
+          settled:settled.slice(),
+          queue:heap.map(function(item){return item.slice()}).sort(compare)
+        }, data || {}));
+      }
+      dist[0]=0;
+      record('start', {});
+      while(heap.length) {
+        const item=heap.shift(), currentDist=item[0], node=item[1];
+        if(currentDist!==dist[node]) {
+          record('stale', {node:node, popped:currentDist});
+          continue;
+        }
+        settled[node]=true;
+        record('settle', {node:node, popped:currentDist});
+        graph[node].forEach(function(neighborAndWeight) {
+          const neighbor=neighborAndWeight[0], weight=neighborAndWeight[1];
+          const candidate=currentDist+weight, previous=dist[neighbor];
+          const improved=candidate<previous;
+          if(improved) {
+            dist[neighbor]=candidate;
+            parent[neighbor]=node;
+            heap.push([candidate,neighbor]);
+            heap.sort(compare);
+          }
+          record('relax', {
+            from:node,
+            to:neighbor,
+            candidate:candidate,
+            previous:previous,
+            improved:improved
+          });
+        });
+      }
+      record('done', {});
+      return result;
+    }
+
+    function pathTo(target, parent) {
+      const path=[];
+      let node=target;
+      while(node!==-1) {
+        path.push(node);
+        if(node===0) return path.reverse();
+        node=parent[node];
+      }
+      return [];
+    }
+
+    function describe(step) {
+      if(step.type==='start') return '初始化：dist[0] = 0，其餘為 ∞；最小堆放入 (0, 0)。';
+      if(step.type==='settle') return '取出 ('+step.popped+', '+step.node+')。節點 '+step.node+' 的距離定案，現在檢查它的鄰邊。';
+      if(step.type==='stale') return '跳過過期條目 ('+step.popped+', '+step.node+')：目前 dist['+step.node+'] = '+showDist(step.dist[step.node])+'，這筆舊距離不再有效。';
+      if(step.type==='relax') {
+        if(step.improved) return '鬆弛 '+step.from+' ↔ '+step.to+'：候選距離 '+step.candidate+' 比 '+showDist(step.previous)+' 短，更新 dist['+step.to+'] 並令 parent['+step.to+'] = '+step.from+'。';
+        return '檢查 '+step.from+' ↔ '+step.to+'：候選距離 '+step.candidate+' 沒有比 dist['+step.to+'] = '+showDist(step.previous)+' 短，保持不變。';
+      }
+      return '完成：dist[5] = 9，parent[] 還原出路徑 0 → 1 → 3 → 5。';
+    }
+
+    function render() {
+      const step=steps[stepIndex];
+      const finalPath=step.type==='done' ? pathTo(5,step.parent) : [];
+      const pathEdges=new Set();
+      for(let i=1;i<finalPath.length;i++) pathEdges.add(edgeKey(finalPath[i-1],finalPath[i]));
+      edges.forEach(function(edge) {
+        const u=edge[0], v=edge[1], key=edgeKey(u,v);
+        const group=byId('edge-'+key);
+        const isParent=step.parent[u]===v || step.parent[v]===u;
+        group.classList.toggle('parent',isParent);
+        group.classList.toggle('active',step.type==='relax' && key===edgeKey(step.from,step.to));
+        group.classList.toggle('path',pathEdges.has(key));
+      });
+      nodeNames.forEach(function(name,node) {
+        const group=byId('node-'+node);
+        group.classList.toggle('settled',step.settled[node]);
+        group.classList.toggle('focus',step.type==='settle' && step.node===node);
+        byId('distance-'+node).textContent=showDist(step.dist[node]);
+      });
+      byId('message').textContent=describe(step);
+      byId('queue').innerHTML=step.queue.length
+        ? step.queue.map(function(item){return '<span class="queue-chip">('+item[0]+', '+item[1]+')</span>'}).join('')
+        : '<span class="empty">空</span>';
+      byId('distance-rows').innerHTML=nodeNames.map(function(name,node) {
+        const status=step.settled[node] ? '已定案' : (step.dist[node]===Infinity ? '未抵達' : '候選');
+        return '<tr class="'+(step.settled[node]?'settled':'')+'"><td>'+node+'（'+name+'）</td><td><code>'+showDist(step.dist[node])+'</code></td><td><code>'+(step.parent[node]===-1?'—':step.parent[node])+'</code></td><td>'+status+'</td></tr>';
+      }).join('');
+      byId('step-count').textContent='步驟 '+(stepIndex+1)+' / '+steps.length;
+      byId('progress-fill').style.width=((stepIndex+1)/steps.length*100)+'%';
+      byId('previous').disabled=stepIndex===0;
+      byId('next').disabled=stepIndex===steps.length-1;
+      byId('play').textContent=timer ? '❚❚ 暫停' : '▶ 自動播放';
+    }
+
+    function stopPlayback() {
+      if(timer) window.clearInterval(timer);
+      timer=null;
+    }
+    function moveTo(index) {
+      stopPlayback();
+      stepIndex=Math.max(0,Math.min(steps.length-1,index));
+      render();
+    }
+    steps=buildSteps();
+    byId('previous').addEventListener('click',function(){moveTo(stepIndex-1)});
+    byId('next').addEventListener('click',function(){moveTo(stepIndex+1)});
+    byId('reset').addEventListener('click',function(){moveTo(0)});
+    byId('play').addEventListener('click',function() {
+      if(timer) { stopPlayback(); render(); return; }
+      if(stepIndex===steps.length-1) stepIndex=0;
+      timer=window.setInterval(function() {
+        if(stepIndex>=steps.length-1) { stopPlayback(); render(); return; }
+        stepIndex++;
+        render();
+        if(stepIndex===steps.length-1) { stopPlayback(); render(); }
+      },850);
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>
