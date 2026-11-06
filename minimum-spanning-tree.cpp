@@ -121,6 +121,7 @@ KruskalResult kruskal(const string& title, vector<Edge> edges) {
 }
 
 struct PrimResult {
+    // Prim tracks tree membership directly; it has no disjoint-set parent state.
     vector<Edge> chosen;
     int totalWeight = 0;
 };
