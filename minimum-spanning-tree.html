@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>最小生成樹｜Kruskal 與 Prim</title>
+  <style>
+    :root{--bg:#edf2f6;--paper:#fff;--ink:#193047;--muted:#71869a;--line:#d5dfe7;--blue:#2877b8;--green:#16866b;--amber:#e99b10;--red:#c94b4b;--soft:#e8f1f8}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif}main{width:min(1180px,94%);margin:30px auto 42px}.hero{margin-bottom:18px}.hero h1{font-size:clamp(28px,4vw,38px);margin:0 0 7px}.hero p{margin:0;color:var(--muted);line-height:1.7}.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.nav a{padding:9px 12px;border-radius:9px;background:#e1ebf3;color:var(--blue);font-size:13px;font-weight:750;text-decoration:none}.layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.85fr);gap:16px;align-items:start}.panel{min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 8px 22px #1930470b}.panel h2{font-size:17px;margin:0 0 5px}.caption{font-size:13px;color:var(--muted);line-height:1.65;margin:0 0 12px}.graph-wrap{overflow:auto;border-radius:12px;background:#dce5ed}.graph{display:block;width:100%;min-width:550px;height:auto}.edge-line{stroke:#b9c8d4;stroke-width:3;transition:stroke .18s,stroke-width .18s,stroke-dasharray .18s}.edge-group.tree .edge-line{stroke:var(--green);stroke-width:6}.edge-group.current .edge-line{stroke:var(--amber);stroke-width:7}.edge-group.rejected .edge-line,.edge-group.dropped .edge-line{stroke:var(--red);stroke-width:4;stroke-dasharray:8 6}.edge-weight{font-size:15px;font-weight:800;text-anchor:middle;dominant-baseline:central;fill:#7b91a5;paint-order:stroke;stroke:#dce5ed;stroke-width:5px;stroke-linejoin:round}.edge-group.tree .edge-weight{fill:#08795f}.edge-group.current .edge-weight{fill:#9a6200}.edge-group.rejected .edge-weight,.edge-group.dropped .edge-weight{fill:var(--red)}.node circle{fill:#f9fcff;stroke:#2877b8;stroke-width:3}.node.in-tree circle{fill:#ccecdf;stroke:var(--green)}.node.focus circle{fill:#ffe3a8;stroke:var(--amber);stroke-width:4}.node-name{font-size:19px;font-weight:850;text-anchor:middle;dominant-baseline:central;fill:var(--ink)}.node-state{font-size:12px;font-weight:800;text-anchor:middle;fill:#c05e00}.legend{display:flex;gap:13px;flex-wrap:wrap;margin-top:11px;color:var(--muted);font-size:12px}.legend span{display:inline-flex;align-items:center;gap:5px}.legend i{width:17px;height:4px;border-radius:3px;background:#b9c8d4}.legend .accepted i{background:var(--green)}.legend .active i{height:6px;background:var(--amber)}.legend .rejected i{height:0;border-top:3px dashed var(--red);background:transparent}.controls-title{display:flex;justify-content:space-between;align-items:center;gap:10px}.count{color:var(--muted);font-size:12px}.selector{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.selector button,.playback button{border:0;border-radius:8px;padding:9px 11px;background:#edf2f6;color:#435a6f;font:inherit;font-size:13px;font-weight:750;cursor:pointer}.selector button.active,.playback button.primary{background:var(--blue);color:white}.selector button:disabled,.playback button:disabled{opacity:.42;cursor:not-allowed}.control-label{margin:12px 0 5px;color:var(--muted);font-size:11px;font-weight:850;letter-spacing:.04em}.playback{display:flex;gap:7px;flex-wrap:wrap}.playback button{background:#e8f1f8;color:var(--blue)}.progress{height:5px;margin:14px 0;background:#e8edf2;border-radius:5px;overflow:hidden}.progress i{display:block;width:0;height:100%;background:var(--blue);transition:width .18s}.message{min-height:54px;margin:12px 0 7px;padding:11px 12px;border-radius:10px;background:#f4f7fa;font-size:14px;line-height:1.65}.message b{color:var(--blue)}.message .cycle{color:var(--red);font-weight:800}.message .accepted-text{color:var(--green);font-weight:800}.parents{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.parent-chip{padding:5px 8px;border-radius:7px;background:#edf2f6;color:#526a7e;font:700 12px ui-monospace,Consolas,monospace}.parent-chip.root{background:#fff0d1;color:#9b5c00}.parent-chip.root::after{content:" 根";font-family:inherit;font-size:10px}.edge-list{display:flex;flex-wrap:wrap;gap:6px;min-height:29px;margin:8px 0}.edge-chip{padding:6px 8px;border-radius:7px;background:#d9f0e7;color:#08795f;font:750 12px ui-monospace,Consolas,monospace}.empty{color:#97a7b5;font-size:13px;padding:5px 0}.summary{margin:12px 0 0;padding:12px;border:1px solid #dbe7ef;border-radius:10px;background:#f8fbfd;font-size:13px;line-height:1.7}.summary strong{color:var(--green)}.foot{margin-top:14px;color:var(--muted);font-size:12px;line-height:1.7}.source{margin-top:16px}.source summary{cursor:pointer;color:var(--blue);font-size:14px;font-weight:800}.source p{color:var(--muted);font-size:13px;line-height:1.7}.source a{color:var(--blue);font-weight:750}.source pre{overflow:auto;padding:14px;border-radius:10px;background:#172b3b;color:#e3edf5;font-size:12px;line-height:1.65}.forest-note{margin-top:10px;padding:10px;border-radius:9px;background:#fff5df;color:#825600;font-size:12px;line-height:1.6}
+    @media(max-width:820px){main{margin:22px auto}.layout{grid-template-columns:1fr}.graph{min-width:500px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <main>
+    <nav class="nav" aria-label="教材導覽"><a href="./index.html">二元搜尋樹</a><a href="./dfs-bfs.html">DFS / BFS</a><a href="./hash-table.html">雜湊表</a></nav>
+    <header class="hero"><h1>最小生成樹：Kruskal 與 Prim</h1><p>逐步觀察收邊順序、成環判斷與併查集父陣列。切換不連通圖，可看到 Kruskal 如何得到最小生成森林。</p></header>
+    <div class="layout">
+      <section class="panel" aria-labelledby="graph-title">
+        <div class="controls-title"><h2 id="graph-title">加權無向圖</h2><span id="graph-meta" class="count"></span></div>
+        <p class="caption">頂點 A～F 對應 0～5；綠線是已收下的邊，紅色虛線表示成環邊或被丟棄的舊票。</p>
+        <div class="graph-wrap"><svg id="graph" class="graph" viewBox="0 0 700 360" role="img" aria-label="A 到 F 的加權無向圖"></svg></div>
+        <div class="legend"><span class="accepted"><i></i>已收邊</span><span class="active"><i></i>目前處理</span><span class="rejected"><i></i>跳過</span><span><i></i>尚未處理</span></div>
+      </section>
+      <aside class="panel" aria-labelledby="control-title">
+        <div class="controls-title"><h2 id="control-title">演算法步驟</h2><span id="step-count" class="count"></span></div>
+        <div class="control-label">圖形範例</div>
+        <div class="selector" role="group" aria-label="選擇圖形範例"><button class="case-button active" data-case="connected">連通圖</button><button class="case-button" data-case="disconnected">不連通圖</button></div>
+        <div class="control-label">演算法</div>
+        <div class="selector" role="group" aria-label="選擇演算法"><button class="algorithm-button active" data-algorithm="kruskal">Kruskal</button><button class="algorithm-button" data-algorithm="prim">Prim</button></div>
+        <div class="playback"><button id="previous" type="button">← 上一步</button><button id="next" class="primary" type="button">下一步 →</button><button id="play" type="button">▶ 自動播放</button><button id="reset" type="button">↺ 重來</button></div>
+        <div class="progress" aria-hidden="true"><i id="progress-fill"></i></div>
+        <div class="control-label">目前步驟</div><div id="message" class="message" role="status" aria-live="polite"></div>
+        <div id="parent-section"><div class="control-label">併查集 p[A..F]</div><div id="parents" class="parents"></div></div>
+        <div class="control-label">已收邊</div><div id="chosen-edges" class="edge-list"></div>
+        <div id="summary" class="summary"></div>
+        <div id="forest-note" class="forest-note" hidden>原圖有兩個連通分量，所以不存在一棵涵蓋所有頂點的生成樹。Kruskal 會在每個分量內各自選出最小生成樹，合起來就是最小生成森林。</div>
+        <p class="foot">Kruskal 依權重排序後逐邊檢查；Prim 從 A 出發，每次取出權重最小的票。Prim 遇到已在樹中的頂點時，會丟棄該舊票。</p>
+      </aside>
+    </div>
+    <details class="panel source">
+      <summary>C++ 原始碼與瀏覽器版說明</summary>
+      <p>這個靜態網頁以 JavaScript 重現 <code>minimum-spanning-tree.cpp</code> 的步驟，GitHub Pages 不會在瀏覽器中直接編譯 C++。可下載原始 C++ 程式，在本機使用 g++ 編譯。</p>
+      <p><a href="./minimum-spanning-tree.cpp" download>下載 minimum-spanning-tree.cpp</a></p>
+      <pre><code>// Kruskal：tuple(w, u, v) 排序，併查集判斷成環
+sort(edges.begin(), edges.end());
+for (const auto&amp; [w, u, v] : edges) {
+    if (dsu.unite(u, v)) {
+        chosen.emplace_back(w, u, v);
+        totalWeight += w;
+    } else {
+        // 兩端已連通，加入會形成環
+    }
+}
+
+// Prim：tuple(w, v, from)，最小票優先
+priority_queue&lt;Ticket, vector&lt;Ticket&gt;, greater&lt;Ticket&gt;&gt; tickets;
+while (!tickets.empty()) {
+    auto [w, v, from] = tickets.top();
+    tickets.pop();
+    if (inTree[v]) continue; // 丟棄舊票
+    inTree[v] = true;
+}</code></pre>
+    </details>
+  </main>
+  <script>
+    const labels = ['A', 'B', 'C', 'D', 'E', 'F'];
+    const points = {A:[70,180], B:[230,70], C:[230,290], D:[450,70], E:[450,290], F:[630,180]};
+    const edgeLabels = {'A-B':[137,105], 'A-C':[137,255], 'B-C':[205,180], 'B-D':[340,49], 'C-D':[333,163], 'C-E':[340,311], 'D-E':[475,180], 'D-F':[543,104], 'E-F':[543,256]};
+    const graphCases = {
+      connected: {
+        name: '連通圖',
+        edges: [[4,0,1],[2,0,2],[1,1,2],[5,1,3],[8,2,3],[10,2,4],[2,3,4],[6,3,5],[3,4,5]]
+      },
+      disconnected: {
+        name: '不連通圖',
+        edges: [[4,0,1],[2,0,2],[1,1,2],[2,3,4],[3,4,5]]
+      }
+    };
+    const $ = id => document.getElementById(id);
+    let caseName = 'connected', algorithm = 'kruskal', steps = [], stepIndex = -1, timer = null;
+    const edgeKey = (u,v) => [Math.min(u,v),Math.max(u,v)].join('-');
+    const edgeText = e => `${labels[e.u]}-${labels[e.v]} (${e.w})`;
+
+    function normalizeEdges(raw) {
+      return raw.map(([w,u,v]) => ({w,u,v,key:edgeKey(u,v)}));
+    }
+
+    function runKruskal(edges) {
+      const parent = [0,1,2,3,4,5];
+      let components = labels.length;
+      const chosen = [];
+      const find = x => parent[x] === x ? x : (parent[x] = find(parent[x]));
+      const sorted = [...edges].sort((a,b) => a.w-b.w || a.u-b.u || a.v-b.v);
+      return sorted.map(edge => {
+        const ru = find(edge.u), rv = find(edge.v);
+        let type, detail;
+        if (ru === rv) {
+          type = 'cycle';
+          detail = `跳過 ${edgeText(edge)}：兩端的代表都是 ${labels[ru]}，加入會成環。`;
+        } else {
+          const small = Math.min(ru,rv), large = Math.max(ru,rv);
+          parent[large] = small;
+          components--;
+          chosen.push(edge);
+          type = 'accept';
+          detail = `收下 ${edgeText(edge)}：合併代表 ${labels[ru]} 與 ${labels[rv]}，較小編號 ${labels[small]} 當老大。`;
+        }
+        return {type,edge,detail,parent:[...parent],chosen:[...chosen],components,visited:[]};
+      });
+    }
+
+    function runPrim(edges) {
+      const adjacency = Array.from({length:labels.length}, () => []);
+      edges.forEach(e => { adjacency[e.u].push({v:e.v,w:e.w}); adjacency[e.v].push({v:e.u,w:e.w}); });
+      const inTree = Array(labels.length).fill(false), chosen = [], tickets = [];
+      const push = t => { tickets.push(t); tickets.sort((a,b) => a.w-b.w || a.v-b.v || a.from-b.from); };
+      push({w:0,v:0,from:-1});
+      const result = [];
+      while (tickets.length) {
+        const ticket = tickets.shift(), {w,v,from} = ticket;
+        if (inTree[v]) {
+          const edge = from < 0 ? null : {w,u:from,v,key:edgeKey(from,v)};
+          result.push({type:'stale',edge,detail:`丟棄舊票 ${from < 0 ? labels[v] : edgeText(edge)}：${labels[v]} 已在樹裡。`,chosen:[...chosen],visited:[...inTree],ticket:{...ticket}});
+          continue;
+        }
+        inTree[v] = true;
+        let edge = null, type = 'start', detail = `將起點 ${labels[v]} 放入樹。`;
+        if (from >= 0) {
+          edge = {w,u:from,v,key:edgeKey(from,v)};
+          chosen.push(edge);
+          type = 'accept';
+          detail = `收下 ${edgeText(edge)}：${labels[v]} 是目前最小票所連到的樹外頂點。`;
+        }
+        result.push({type,edge,detail,chosen:[...chosen],visited:[...inTree],ticket:{...ticket}});
+        adjacency[v].forEach(next => push({w:next.w,v:next.v,from:v}));
+      }
+      return result;
+    }
+
+    function stopPlayback() {
+      if (timer) clearInterval(timer);
+      timer = null;
+      $('play').textContent = '▶ 自動播放';
+    }
+
+    function rebuild() {
+      stopPlayback();
+      const edges = normalizeEdges(graphCases[caseName].edges);
+      steps = algorithm === 'kruskal' ? runKruskal(edges) : runPrim(edges);
+      stepIndex = -1;
+      render();
+    }
+
+    function renderGraph(current, edges) {
+      const chosenKeys = new Set(current.chosen.map(e => e.key));
+      const focusKey = current.edge?.key;
+      const edgeMarkup = edges.map(e => {
+        const [x1,y1] = points[labels[e.u]], [x2,y2] = points[labels[e.v]];
+        const dx=x2-x1,dy=y2-y1,d=Math.hypot(dx,dy),r=27;
+        const ax=x1+dx*r/d, ay=y1+dy*r/d, bx=x2-dx*r/d, by=y2-dy*r/d;
+        let cls = chosenKeys.has(e.key) ? 'tree' : '';
+        if (focusKey === e.key) cls += current.type === 'cycle' ? ' rejected' : current.type === 'stale' ? ' dropped' : ' current';
+        const [tx,ty] = edgeLabels[`${labels[e.u]}-${labels[e.v]}`] || edgeLabels[`${labels[e.v]}-${labels[e.u]}`];
+        return `<g class="edge-group ${cls}"><line class="edge-line" x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}"/><text class="edge-weight" x="${tx}" y="${ty}">${e.w}</text></g>`;
+      }).join('');
+      const parent = current.parent || [0,1,2,3,4,5];
+      const visited = current.visited || [];
+      const nodeMarkup = labels.map((label,i) => {
+        const [x,y] = points[label];
+        const focus = current.edge && (current.edge.u === i || current.edge.v === i);
+        const state = algorithm === 'kruskal' ? `p=${labels[parent[i]]}` : visited[i] ? '樹內' : '樹外';
+        return `<g class="node ${visited[i] ? 'in-tree' : ''} ${focus ? 'focus' : ''}"><circle cx="${x}" cy="${y}" r="26"/><text class="node-name" x="${x}" y="${y}">${label}</text><text class="node-state" x="${x}" y="${y-38}">${state}</text></g>`;
+      }).join('');
+      $('graph').innerHTML = `<g aria-hidden="true">${edgeMarkup}</g><g>${nodeMarkup}</g>`;
+      $('graph').setAttribute('aria-label', `${graphCases[caseName].name}：${edges.length} 條邊，演算法 ${algorithm === 'kruskal' ? 'Kruskal' : 'Prim'}`);
+    }
+
+    function render() {
+      const edges = normalizeEdges(graphCases[caseName].edges);
+      const current = stepIndex >= 0 ? steps[stepIndex] : {type:'ready',edge:null,parent:[0,1,2,3,4,5],chosen:[],components:labels.length,visited:[]};
+      const acceptedWeight = current.chosen.reduce((sum,e) => sum+e.w,0);
+      const final = steps.length ? steps[steps.length-1] : current;
+      const finalWeight = final.chosen.reduce((sum,e) => sum+e.w,0);
+      const componentCount = final.components ?? labels.length;
+      renderGraph(current,edges);
+      $('graph-meta').textContent = `${labels.length} 個頂點・${edges.length} 條邊`;
+      $('step-count').textContent = `${Math.max(0,stepIndex+1)} / ${steps.length} 步`;
+      $('progress-fill').style.width = `${steps.length ? Math.max(0,stepIndex+1)/steps.length*100 : 0}%`;
+      $('previous').disabled = stepIndex < 0;
+      $('next').disabled = stepIndex >= steps.length-1;
+      $('play').disabled = !steps.length;
+      $('parent-section').hidden = algorithm !== 'kruskal';
+      $('forest-note').hidden = !(caseName === 'disconnected' && algorithm === 'kruskal');
+
+      if (stepIndex < 0) {
+        $('message').innerHTML = algorithm === 'kruskal'
+          ? '準備開始：邊會依 <b>(w, u, v)</b> 排序，然後逐一判斷是否成環。'
+          : '準備開始：從 A 出發，priority_queue 以 <b>(w, v, from)</b> 排序。';
+      } else {
+        const item = steps[stepIndex];
+        const cls = item.type === 'cycle' || item.type === 'stale' ? 'cycle' : item.type === 'accept' ? 'accepted-text' : '';
+        $('message').innerHTML = `<span class="${cls}">${item.detail}</span>`;
+      }
+
+      $('parents').innerHTML = current.parent.map((p,i) => `<span class="parent-chip ${p===i?'root':''}">p[${labels[i]}]=${labels[p]}</span>`).join('');
+      $('chosen-edges').innerHTML = current.chosen.length
+        ? current.chosen.map(e => `<span class="edge-chip">${edgeText(e)}</span>`).join('')
+        : '<span class="empty">尚未收邊</span>';
+
+      if (caseName === 'disconnected' && algorithm === 'kruskal') {
+        $('summary').innerHTML = `目前森林：已收 <b>${current.chosen.length}</b> 條邊，總重 <b>${acceptedWeight}</b>。完成後有 <b>${componentCount}</b> 個連通分量、收下 ${final.chosen.length} 條邊，總重 <strong>${finalWeight}</strong>。`;
+      } else if (stepIndex === steps.length-1) {
+        $('summary').innerHTML = `完成：收下 <b>${current.chosen.length}</b> 條邊，總重 <strong>${acceptedWeight}</strong>。${acceptedWeight === 13 && caseName === 'connected' ? 'Kruskal 與 Prim 都得到總重 13。' : ''}`;
+      } else {
+        $('summary').innerHTML = `目前已收 <b>${current.chosen.length}</b> 條邊，累計總重 <b>${acceptedWeight}</b>。完成結果：${final.chosen.length} 條邊、總重 <strong>${finalWeight}</strong>。`;
+      }
+    }
+
+    function advance() {
+      if (stepIndex < steps.length-1) {
+        stepIndex++;
+        render();
+      } else {
+        stopPlayback();
+      }
+    }
+
+    document.querySelectorAll('.case-button').forEach(button => button.addEventListener('click', () => {
+      caseName = button.dataset.case;
+      document.querySelectorAll('.case-button').forEach(item => item.classList.toggle('active',item===button));
+      if (caseName === 'disconnected') {
+        algorithm = 'kruskal';
+        document.querySelectorAll('.algorithm-button').forEach(item => {
+          item.classList.toggle('active',item.dataset.algorithm===algorithm);
+          item.disabled = item.dataset.algorithm === 'prim';
+        });
+      } else {
+        document.querySelectorAll('.algorithm-button').forEach(item => item.disabled = false);
+      }
+      rebuild();
+    }));
+    document.querySelectorAll('.algorithm-button').forEach(button => button.addEventListener('click', () => {
+      if (button.disabled) return;
+      algorithm = button.dataset.algorithm;
+      document.querySelectorAll('.algorithm-button').forEach(item => item.classList.toggle('active',item===button));
+      rebuild();
+    }));
+    $('previous').addEventListener('click', () => { if (stepIndex >= 0) { stepIndex--; render(); } });
+    $('next').addEventListener('click', advance);
+    $('reset').addEventListener('click', () => { stopPlayback(); stepIndex=-1; render(); });
+    $('play').addEventListener('click', () => {
+      if (timer) { stopPlayback(); return; }
+      if (stepIndex >= steps.length-1) stepIndex=-1;
+      $('play').textContent = 'Ⅱ 暫停';
+      timer = setInterval(() => {
+        if (stepIndex >= steps.length-1) { stopPlayback(); return; }
+        stepIndex++;
+        render();
+      }, 700);
+      advanceIfReady();
+    });
+    function advanceIfReady() {
+      if (timer && stepIndex < 0) { stepIndex=0; render(); }
+    }
+    rebuild();
+  </script>
+</body>
+</html>
