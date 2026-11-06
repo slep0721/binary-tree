@@ -182,6 +182,7 @@ while (!tickets.empty()) {
       const final = steps.length ? steps[steps.length-1] : current;
       const finalWeight = final.chosen.reduce((sum,e) => sum+e.w,0);
       const componentCount = final.components ?? labels.length;
+      const parent = current.parent || [0,1,2,3,4,5];
       renderGraph(current,edges);
       $('graph-meta').textContent = `${labels.length} 個頂點・${edges.length} 條邊`;
       $('step-count').textContent = `${Math.max(0,stepIndex+1)} / ${steps.length} 步`;
@@ -202,7 +203,7 @@ while (!tickets.empty()) {
         $('message').innerHTML = `<span class="${cls}">${item.detail}</span>`;
       }
 
-      $('parents').innerHTML = current.parent.map((p,i) => `<span class="parent-chip ${p===i?'root':''}">p[${labels[i]}]=${labels[p]}</span>`).join('');
+      $('parents').innerHTML = parent.map((p,i) => `<span class="parent-chip ${p===i?'root':''}">p[${labels[i]}]=${labels[p]}</span>`).join('');
       $('chosen-edges').innerHTML = current.chosen.length
         ? current.chosen.map(e => `<span class="edge-chip">${edgeText(e)}</span>`).join('')
         : '<span class="empty">尚未收邊</span>';
