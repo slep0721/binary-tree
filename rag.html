@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f4f6fb">
+  <title>台灣麥當勞菜單｜RAG 點餐問答</title>
+  <style>
+    :root{--bg:#f4f6fb;--card:#fff;--ink:#182238;--muted:#68758d;--line:#dce4f0;--primary:#4f46e5;--primary-soft:#eef0ff;--teal:#0f766e;--teal-soft:#e4f5f1;--amber:#b45309;--amber-soft:#fff5dc;--red:#b42318;--red-soft:#fff0ef;--shadow:0 12px 32px #1822380b}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif}button,input,textarea,select{font:inherit}button{border:0;border-radius:10px;padding:11px 14px;font-weight:720;cursor:pointer;transition:transform .15s,background .15s,box-shadow .15s}button:hover:not(:disabled){transform:translateY(-1px)}button:disabled{opacity:.48;cursor:not-allowed}
+    main{width:min(1240px,94%);margin:30px auto 50px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:28px}.back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);text-decoration:none;font-size:14px;font-weight:700}.back:hover{color:var(--primary)}.brand{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.brand-mark{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:var(--primary);color:white;font-size:14px;letter-spacing:0}
+    .hero{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:24px}.eyebrow{display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;padding:6px 10px;border:1px solid #d7d5ff;border-radius:999px;background:var(--primary-soft);color:var(--primary);font-size:11px;font-weight:850;letter-spacing:.08em}.dot{width:7px;height:7px;border-radius:50%;background:var(--teal)}h1{margin:0 0 9px;font-size:clamp(30px,4vw,43px);letter-spacing:-.035em;line-height:1.15}.hero p{max-width:700px;margin:0;color:var(--muted);line-height:1.75}.privacy{flex:none;max-width:240px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#ffffffa8;color:var(--muted);font-size:12px;line-height:1.6}.privacy b{display:block;color:var(--teal);font-size:13px}
+    .layout{display:grid;grid-template-columns:minmax(290px,350px) minmax(0,1fr);align-items:start;gap:18px}.column{display:grid;gap:18px;min-width:0}.card{min-width:0;border:1px solid var(--line);border-radius:17px;background:var(--card);box-shadow:var(--shadow);padding:20px}.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:15px}.card-head h2{margin:0;font-size:17px;letter-spacing:-.01em}.card-head p{margin:5px 0 0;color:var(--muted);font-size:12px;line-height:1.65}.step-tag{display:inline-grid;place-items:center;flex:none;width:27px;height:27px;border-radius:9px;background:var(--primary-soft);color:var(--primary);font-size:12px;font-weight:850}
+    label{display:block;margin:13px 0 6px;color:#35415a;font-size:12px;font-weight:750}input[type=text],textarea,select{width:100%;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);outline:0}input[type=text],select{padding:11px 12px}textarea{min-height:110px;padding:11px 12px;resize:vertical;line-height:1.6}input:focus,textarea:focus,select:focus{border-color:#918afa;box-shadow:0 0 0 3px #4f46e51b}.helper{margin:6px 0 0;color:var(--muted);font-size:11px;line-height:1.65}.row{display:flex;gap:8px;align-items:center}.row>*{min-width:0}.primary{background:var(--primary);color:#fff}.secondary{background:var(--primary-soft);color:var(--primary)}.quiet{background:#f0f2f7;color:#48556e}.danger{background:var(--red-soft);color:var(--red)}.wide{width:100%;margin-top:12px}.message{min-height:20px;margin:9px 0 0;color:var(--teal);font-size:12px;line-height:1.6}.message.error{color:var(--red)}
+    .form-actions{display:flex;gap:8px;margin-top:12px}.form-actions button{flex:1}.divider{height:1px;margin:18px 0;background:var(--line)}details summary{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;list-style:none;color:#35415a;font-size:13px;font-weight:780}details summary::-webkit-details-marker{display:none}details summary:after{content:"＋";color:var(--primary);font-size:16px}details[open] summary:after{content:"－"}details .detail-content{padding-top:8px}.format{overflow:auto;margin:10px 0;padding:11px 12px;border-radius:9px;background:#f5f6fb;color:#526078;font:11px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace}
+    .kb-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}.kb-count{padding:5px 9px;border-radius:999px;background:var(--teal-soft);color:var(--teal);font-size:11px;font-weight:800}.kb-empty{padding:15px;border:1px dashed var(--line);border-radius:11px;color:var(--muted);font-size:12px;line-height:1.65;text-align:center}.kb-list{display:grid;gap:8px;max-height:290px;overflow:auto;padding-right:2px}.kb-item{padding:11px 12px;border:1px solid var(--line);border-radius:11px;background:#fcfdff}.kb-item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:9px}.kb-question{min-width:0;font-size:12px;font-weight:760;line-height:1.55;overflow-wrap:anywhere}.remove{flex:none;padding:3px 7px;border-radius:7px;background:#f1f3f8;color:var(--muted);font-size:11px}.kb-answer{display:-webkit-box;margin-top:6px;overflow:hidden;color:var(--muted);font-size:11px;line-height:1.55;-webkit-box-orient:vertical;-webkit-line-clamp:2}.kb-source{margin-top:6px;color:var(--primary);font-size:10px}
+    .query-card{padding:21px}.query-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px}.query-row input{font-size:15px}.query-row button{min-width:112px}.query-options{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:10px;color:var(--muted);font-size:11px}.select-inline{display:flex;align-items:center;gap:7px}.select-inline select{width:auto;padding:5px 25px 5px 8px;border-radius:8px;font-size:11px}.pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.pipe-step{position:relative;min-height:94px;padding:13px 12px;border:1px solid var(--line);border-radius:13px;background:#fff}.pipe-step:not(:last-child):after{position:absolute;top:21px;right:-8px;z-index:1;content:"›";display:grid;place-items:center;width:16px;height:16px;border-radius:50%;background:#f4f6fb;color:#9aa4b6;font-size:18px;font-weight:700}.pipe-num{color:#9aa4b6;font-size:10px;font-weight:850;letter-spacing:.08em}.pipe-step b{display:block;margin-top:7px;font-size:12px}.pipe-step span:last-child{display:block;margin-top:4px;color:var(--muted);font-size:10px;line-height:1.45}
+    .answer-card{overflow:hidden;padding:0}.answer-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 18px;border-bottom:1px solid var(--line);background:#fbfcff}.answer-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:820}.answer-icon{display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:var(--teal-soft);color:var(--teal);font-size:13px}.answer-state{color:var(--muted);font-size:10px}.answer-body{min-height:116px;padding:19px 20px;color:var(--ink);font-size:15px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere}.answer-body.placeholder{color:#9aa4b6;font-size:13px}.answer-foot{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:0 20px 16px;color:var(--muted);font-size:10px}.citation{padding:5px 8px;border-radius:7px;background:var(--teal-soft);color:var(--teal);font-weight:750}
+    .results-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:3px 0 10px}.results-head h2{margin:0;font-size:15px}.results-head span{color:var(--muted);font-size:10px}.result-list{display:grid;gap:9px}.result{padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:#fff}.result-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.rank{display:flex;align-items:center;gap:7px;color:#526078;font-size:11px;font-weight:800}.rank-mark{display:grid;place-items:center;width:21px;height:21px;border-radius:7px;background:var(--primary-soft);color:var(--primary);font-size:10px}.score{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:10px}.score-track{width:76px;height:5px;overflow:hidden;border-radius:9px;background:#edf0f6}.score-fill{height:100%;border-radius:inherit;background:var(--teal)}.result-q{margin-top:9px;font-size:12px;font-weight:760;line-height:1.6}.result-a{margin-top:5px;color:#526078;font-size:11px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}.result-source{margin-top:8px;color:var(--primary);font-size:10px}.results-empty{padding:15px;border:1px dashed var(--line);border-radius:11px;color:var(--muted);font-size:12px;line-height:1.7}
+    .note{padding:12px 14px;border:1px solid #f2dfb1;border-radius:11px;background:var(--amber-soft);color:#775216;font-size:11px;line-height:1.7}.note b{font-weight:800}.footnote{margin:17px 2px 0;color:#929caf;font-size:10px;line-height:1.7;text-align:center}
+    @media(max-width:850px){.layout{grid-template-columns:1fr}.column:first-child{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.column:first-child .card:first-child{grid-row:span 2}}
+    @media(max-width:600px){main{width:92%;margin:20px auto 36px}.topbar{margin-bottom:21px}.brand{display:none}.hero{display:block}.privacy{max-width:none;margin-top:14px}.column:first-child{grid-template-columns:1fr}.column:first-child .card:first-child{grid-row:auto}.card{padding:17px}.query-row{grid-template-columns:1fr}.query-row button{width:100%}.pipeline{grid-template-columns:repeat(2,1fr)}.pipe-step:nth-child(2):after{display:none}.query-options{align-items:flex-start;flex-direction:column}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <a class="back" href="./index.html" aria-label="回到首頁">← <span>回到互動教學首頁</span></a>
+      <div class="brand"><span class="brand-mark">R</span> DATA STRUCTURES LAB</div>
+    </div>
+    <header class="hero">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> TAIWAN McDONALD'S MENU ASSISTANT</div>
+        <h1>麥當勞菜單問答</h1>
+        <p>查台灣麥當勞目前菜單、品項與參考價格，也可以輸入預算，找出適合的餐點。</p>
+      </div>
+      <div class="privacy"><b>菜單資料整理日：2026/11/13</b>價格為公開門市參考價；各餐廳、外送通路及供應狀況可能不同。</div>
+    </header>
+
+    <div class="layout">
+      <aside class="column">
+        <section class="card">
+          <div class="card-head">
+            <div><h2>菜單資料庫</h2><p>已內建台灣麥當勞品項與參考價格；也可自行補充資料。</p></div>
+            <span class="step-tag">01</span>
+          </div>
+          <form id="qa-form">
+            <label for="new-question">問題</label>
+            <input id="new-question" type="text" required maxlength="500" placeholder="輸入一個問題">
+            <label for="new-answer">回答</label>
+            <textarea id="new-answer" required maxlength="5000" placeholder="輸入這個問題的參考回答"></textarea>
+            <label for="new-source">來源標籤（選填）</label>
+            <input id="new-source" type="text" maxlength="120" placeholder="例如：課程講義第 2 章">
+            <button class="primary wide" type="submit">＋ 新增問答</button>
+          </form>
+          <p class="message" id="edit-message" aria-live="polite"></p>
+          <div class="divider"></div>
+          <details>
+            <summary>批次匯入問答</summary>
+            <div class="detail-content">
+              <p class="helper">支援 JSON 陣列、JSONL（每行一筆 JSON），也可選擇本機的 .json 或 .jsonl 檔。每筆需有 question 與 answer 欄位；可加上 source。</p>
+              <pre class="format">[{"question":"...","answer":"...","source":"..."}]</pre>
+              <label for="import-text">貼上 JSON / JSONL</label>
+              <textarea id="import-text" spellcheck="false" placeholder="貼上你的問答資料"></textarea>
+              <div class="form-actions">
+                <button class="secondary" id="append-import" type="button">追加資料</button>
+                <button class="quiet" id="replace-import" type="button">取代目前資料</button>
+              </div>
+              <label for="import-file">或選擇檔案</label>
+              <input id="import-file" type="file" accept=".json,.jsonl,.txt,application/json,text/plain">
+              <p class="message" id="import-message" aria-live="polite"></p>
+            </div>
+          </details>
+        </section>
+
+        <section class="card">
+          <div class="kb-head">
+            <div class="card-head" style="margin:0"><div><h2>知識庫內容</h2><p>目前瀏覽器儲存的問答。</p></div></div>
+            <span class="kb-count" id="kb-count">0 筆</span>
+          </div>
+          <div class="kb-list" id="kb-list">
+            <div class="kb-empty">知識庫目前是空的。先新增或匯入你的問答。</div>
+          </div>
+          <div class="form-actions">
+            <button class="quiet" id="export-data" type="button" disabled>匯出 JSON</button>
+            <button class="danger" id="clear-data" type="button" disabled>清空</button>
+          </div>
+          <p class="message" id="kb-message" aria-live="polite"></p>
+        </section>
+      </aside>
+
+      <section class="column">
+        <section class="card query-card">
+          <div class="card-head">
+            <div><h2>提出問題</h2><p>可查單品價格、套餐、供應資訊，或詢問預算內的選擇。</p></div>
+            <span class="step-tag">02</span>
+          </div>
+          <form id="query-form">
+            <div class="query-row">
+              <input id="query" type="text" maxlength="500" required placeholder="輸入想查詢的問題…" aria-label="輸入想查詢的問題">
+              <button class="primary" id="search-button" type="submit">搜尋知識庫</button>
+            </div>
+            <div class="query-options">
+              <span id="index-status">尚未建立索引</span>
+              <label class="select-inline" for="top-k" style="margin:0">顯示結果
+                <select id="top-k" aria-label="顯示幾筆檢索結果">
+                  <option value="3" selected>前 3 筆</option><option value="1">前 1 筆</option><option value="5">前 5 筆</option>
+                </select>
+              </label>
+            </div>
+          </form>
+        </section>
+
+        <section class="pipeline" aria-label="RAG 處理流程">
+          <div class="pipe-step"><span class="pipe-num">STEP 01</span><b>整理菜單</b><span>品項、價格與供應資訊</span></div>
+          <div class="pipe-step"><span class="pipe-num">STEP 02</span><b>建立索引</b><span>斷詞後計算 BM25 權重</span></div>
+          <div class="pipe-step"><span class="pipe-num">STEP 03</span><b>檢索品項</b><span>依問題與價格條件排序</span></div>
+          <div class="pipe-step"><span class="pipe-num">STEP 04</span><b>附上依據</b><span>呈現參考價與資料來源</span></div>
+        </section>
+
+        <section class="card answer-card" aria-live="polite">
+          <div class="answer-top">
+            <div class="answer-label"><span class="answer-icon">✦</span>參考回答</div>
+            <span class="answer-state" id="answer-state">等待提問</span>
+          </div>
+          <div class="answer-body placeholder" id="answer-body">新增或匯入問答資料後，在上方輸入問題開始檢索。</div>
+          <div class="answer-foot" id="answer-foot"></div>
+        </section>
+
+        <section class="card">
+          <div class="results-head"><h2>檢索到的資料</h2><span id="result-summary">尚無檢索結果</span></div>
+          <div class="result-list" id="result-list">
+            <div class="results-empty">這裡會顯示排序後的問答片段與相關度，方便確認回答依據。</div>
+          </div>
+        </section>
+
+        <div class="note"><b>價格說明：</b>麥當勞官網指出價格依各地區餐廳價目表為準，歡樂送另有價目表。本頁金額是截至 2026/11/13 蒐集的門市參考價，非即時報價；點餐前請以該門市或麥當勞 App 為準。回答依據菜單資料檢索，不會即時連線更新。</div>
+      </section>
+    </div>
+    <p class="footnote">資料來源：
+      <a href="https://www.mcdonalds.com/tw/zh-tw/full-menu.html" target="_blank" rel="noopener">麥當勞台灣官方菜單</a> ·
+      <a href="https://www.mcdonalds.com/tw/zh-tw/newsroom/2026/20260519.html" target="_blank" rel="noopener">官方價格調整公告</a> ·
+      <a href="https://www.mcdonalds.com/tw/zh-tw/whats-hot/1021AllinBlack.html" target="_blank" rel="noopener">官方松露黑堡活動</a> ·
+      <a href="https://www.mcdonalds.com/tw/zh-tw/whats-hot/1104LTOGuacamoleMcMuffin.html" target="_blank" rel="noopener">官方酪梨醬滿福活動</a> ·
+      <a href="https://www.womenshealthmag.com/tw/food-nutrition/restaurant/g74173589/mcdonalds-truffle-black-burger-seaweed-fries/" target="_blank" rel="noopener">2026 限定品價格整理</a> ·
+      <a href="https://baliman.tw/blog/post/mcdonalds-menu" target="_blank" rel="noopener">2026 菜單價格整理</a> ·
+      <a href="https://www.money101.com.tw/blog/%E9%BA%A5%E7%95%B6%E5%8B%9E%E8%8F%9C%E5%96%AE-%E6%97%A9%E9%A4%90-%E8%B6%85%E5%80%BC%E5%85%A8%E9%A4%90-11-%E5%83%B9%E6%A0%BC-%E5%84%AA%E6%83%A0-%E4%BF%A1%E7%94%A8%E5%8D%A1%E6%8E%A8%E8%96%A6" target="_blank" rel="noopener">2026 早餐、主餐、點心與分享盒價格</a>
+    </p>
+  </main>
+
+  <script>
+    'use strict';
+    const STORAGE_KEY = 'binary-tree-rag-mcdonalds-20261113';
+    const BM25_K1 = 1.35;
+    const BM25_B = 0.72;
+    const MIN_RELEVANCE = 0.13;
+    const DATA_AS_OF = '2026/11/13';
+    const PRICE_SOURCE = '麥當勞官方菜單＋2026公開門市價格整理';
+
+    // p 為單點門市參考價；null 代表沒有查到可確認的統一參考價。
+    // until 用於標記期間限定品，避免活動結束後仍推薦為現售品。
+    const MENU_ITEMS = [
+      {n:'豬肉滿福堡加蛋',c:'早餐',p:60,meal:'breakfast'},
+      {n:'豬肉滿福堡',c:'早餐',p:50,meal:'breakfast'},
+      {n:'無敵豬肉滿福堡加蛋',c:'早餐',p:80,meal:'breakfast'},
+      {n:'滿福堡（火腿）',c:'早餐',p:52,meal:'breakfast'},
+      {n:'青蔬滿福堡',c:'早餐',p:60,meal:'breakfast'},
+      {n:'豬肉蛋堡',c:'早餐',p:64,meal:'breakfast'},
+      {n:'火腿蛋堡',c:'早餐',p:52,meal:'breakfast'},
+      {n:'吉事蛋堡',c:'早餐',p:34,meal:'breakfast'},
+      {n:'蕈菇嫩蛋焙果堡',c:'早餐',p:91,meal:'breakfast'},
+      {n:'番茄嫩蛋焙果堡',c:'早餐',p:71,meal:'breakfast'},
+      {n:'現烤焙果',c:'早餐',p:57,meal:'breakfast'},
+      {n:'麥克鷄塊鬆餅大早餐',c:'早餐',p:111,meal:'breakfast'},
+      {n:'豬肉鬆餅',c:'早餐',p:71,meal:'breakfast'},
+      {n:'鬆餅（3片）',c:'早餐',p:57,meal:'breakfast'},
+      {n:'早餐麥香魚',c:'早餐',p:52,meal:'breakfast'},
+      {n:'原味可頌',c:'早餐／McCafé',p:null},
+      {n:'巧克力榛果可頌',c:'早餐／McCafé',p:null},
+      {n:'肉桂捲',c:'早餐／McCafé',p:null},
+      {n:'酪梨醬豬肉滿福堡',c:'期間限定早餐',p:75,meal:'breakfast',until:'2026-12-15'},
+      {n:'酪梨醬滿福堡（火腿）',c:'期間限定早餐',p:77,meal:'breakfast',until:'2026-12-15'},
+      {n:'酪梨醬豬肉滿福堡加蛋',c:'期間限定早餐',p:85,meal:'breakfast',until:'2026-12-15'},
+      {n:'酪梨醬青蔬滿福堡',c:'期間限定早餐',p:85,meal:'breakfast',until:'2026-12-15'},
+      {n:'酪梨醬無敵豬肉滿福堡加蛋',c:'期間限定早餐',p:105,meal:'breakfast',until:'2026-12-15'},
+
+      {n:'大麥克',c:'漢堡／主餐',p:78,meal:'main'},
+      {n:'雙層牛肉吉事堡',c:'漢堡／主餐',p:72,meal:'main'},
+      {n:'四盎司牛肉堡',c:'漢堡／主餐',p:92,meal:'main'},
+      {n:'辣味四盎司牛肉堡',c:'漢堡／主餐',p:92,meal:'main'},
+      {n:'雙層四盎司牛肉堡',c:'漢堡／主餐',p:132,meal:'main'},
+      {n:'辣味雙層四盎司牛肉堡',c:'漢堡／主餐',p:132,meal:'main'},
+      {n:'麥香鷄',c:'漢堡／主餐',p:48,meal:'main'},
+      {n:'炭燒醬烤鷄腿堡',c:'漢堡／主餐',p:99,meal:'main'},
+      {n:'煙燻勁脆鷄腿堡',c:'漢堡／主餐',p:99,meal:'main'},
+      {n:'肯瓊勁脆鷄腿堡',c:'漢堡／主餐',p:99,meal:'main'},
+      {n:'BLT香烙烤鷄腿堡',c:'漢堡／主餐',p:129,meal:'main'},
+      {n:'麥克鷄塊（6塊）',c:'漢堡／主餐／點心',p:68,meal:'main'},
+      {n:'麥克鷄塊（10塊）',c:'漢堡／主餐／點心',p:109,meal:'main'},
+      {n:'勁辣鷄腿堡',c:'漢堡／主餐',p:78,meal:'main'},
+      {n:'原味麥脆鷄腿（2塊）',c:'漢堡／主餐',p:126,meal:'main'},
+      {n:'辣味麥脆鷄腿（2塊）',c:'漢堡／主餐',p:126,meal:'main'},
+      {n:'麥香魚',c:'漢堡／主餐',p:52,meal:'main'},
+      {n:'雙層麥香魚',c:'漢堡／主餐',p:92,meal:'main'},
+      {n:'BLT安格斯牛肉堡',c:'極選漢堡',p:122,meal:'main'},
+      {n:'蕈菇安格斯牛肉堡',c:'極選漢堡',p:132,meal:'main'},
+      {n:'藜麥沙拉',c:'極選沙拉',p:null},
+      {n:'藜麥鱈魚沙拉',c:'極選沙拉',p:null},
+      {n:'藜麥香烙烤鷄沙拉',c:'極選沙拉',p:159},
+      {n:'藜麥辣脆鷄沙拉',c:'極選沙拉',p:null},
+
+      {n:'漢堡',c:'點心',p:36},
+      {n:'吉事漢堡',c:'點心',p:48},
+      {n:'薯條（小）',c:'點心',p:40},
+      {n:'薯條（中）',c:'點心',p:50},
+      {n:'薯條（大）',c:'點心',p:66},
+      {n:'薯餅',c:'點心／早餐',p:37},
+      {n:'麥克鷄塊（4塊）',c:'點心',p:48},
+      {n:'勁辣香鷄翅（2塊）',c:'點心',p:49},
+      {n:'勁辣香鷄翅（6塊）',c:'點心',p:null},
+      {n:'麥脆鷄腿（1塊）',c:'點心',p:69},
+      {n:'蘋果派',c:'點心／甜點',p:40},
+      {n:'玉米杯',c:'點心',p:null},
+      {n:'四季沙拉（大）',c:'點心',p:55},
+      {n:'水果袋',c:'點心',p:42},
+      {n:'玉米湯（小）',c:'點心',p:48},
+      {n:'玉米湯（大）',c:'點心',p:58},
+      {n:'蛋捲冰淇淋',c:'冰品／甜點',p:18},
+      {n:'大蛋捲冰淇淋',c:'冰品／甜點',p:32},
+      {n:'OREO冰炫風',c:'冰品／甜點',p:59},
+      {n:'雙倍OREO冰炫風',c:'冰品／甜點',p:65},
+      {n:'奶昔（香草／草莓）',c:'冰品／飲料',p:69,detail:'僅部分指定奶昔店供應'},
+
+      {n:'可口可樂（小）',c:'飲料',p:33},
+      {n:'可口可樂（中）',c:'飲料',p:38},
+      {n:'可口可樂zero（小）',c:'飲料',p:33},
+      {n:'可口可樂zero（中）',c:'飲料',p:38},
+      {n:'雪碧（小）',c:'飲料',p:33},
+      {n:'雪碧（中）',c:'飲料',p:38},
+      {n:'檸檬風味紅茶（小）',c:'飲料',p:33},
+      {n:'檸檬風味紅茶（中）',c:'飲料',p:41},
+      {n:'無糖紅茶（小）',c:'飲料',p:35},
+      {n:'無糖紅茶（中）',c:'飲料',p:43},
+      {n:'無糖綠茶（小）',c:'飲料',p:35},
+      {n:'無糖綠茶（中）',c:'飲料',p:43},
+      {n:'熱紅茶',c:'飲料',p:38},
+      {n:'奶茶（熱／冰）',c:'飲料',p:51,detail:'依尺寸及冰熱而異，請以門市菜單為準'},
+      {n:'鮮乳（盒裝）',c:'飲料',p:33},
+      {n:'台灣鮮榨柳丁汁（瓶裝）',c:'飲料',p:68},
+      {n:'Evian礦泉水',c:'飲料',p:null},
+      {n:'經典美式咖啡（冰／熱）',c:'McCafé／咖啡',p:50},
+      {n:'金選美式咖啡（冰／熱）',c:'McCafé／咖啡',p:60},
+      {n:'金選美式咖啡（冰，大杯）',c:'McCafé／咖啡',p:70},
+      {n:'經典那堤（冰／熱，中杯）',c:'McCafé／咖啡',p:77},
+      {n:'經典那堤（冰／熱，大杯）',c:'McCafé／咖啡',p:92},
+      {n:'金選那堤（冰／熱）',c:'McCafé／咖啡',p:87},
+      {n:'經典卡布奇諾（熱）',c:'McCafé／咖啡',p:80},
+      {n:'經典卡布奇諾（冰）',c:'McCafé／咖啡',p:null},
+      {n:'蜂蜜紅茶（冰）',c:'McCafé／飲料',p:58},
+      {n:'蜂蜜奶茶（熱／冰）',c:'McCafé／飲料',p:68},
+      {n:'焦糖奶茶（冰）',c:'McCafé／飲料',p:68},
+
+      {n:'四塊麥克鷄塊Happy Meal',c:'Happy Meal兒童餐',p:99},
+      {n:'漢堡Happy Meal',c:'Happy Meal兒童餐',p:99},
+      {n:'陽光鱈魚堡Happy Meal',c:'Happy Meal兒童餐',p:99},
+      {n:'麥克鷄塊分享盒（20塊）',c:'分享盒',p:214},
+      {n:'麥克鷄塊分享盒（30塊）',c:'分享盒',p:304},
+      {n:'麥脆鷄腿分享盒（6塊）',c:'分享盒',p:414},
+      {n:'勁辣香鷄翅分享盒',c:'分享盒',p:264},
+      {n:'鷄塊鷄腿分享盒',c:'分享盒',p:494},
+
+      {n:'松露安格斯牛肉黑堡',c:'期間限定主餐',p:109,meal:'main',until:'2026-11-24'},
+      {n:'金薯松露安格斯牛肉黑堡',c:'期間限定主餐',p:119,meal:'main',until:'2026-11-24'},
+      {n:'松露脆鷄腿黑堡',c:'期間限定主餐',p:109,meal:'main',until:'2026-11-24'},
+      {n:'金薯松露脆鷄腿黑堡',c:'期間限定主餐',p:119,meal:'main',until:'2026-11-24'},
+      {n:'藜麥黑脆鷄沙拉',c:'期間限定沙拉',p:149,until:'2026-11-24'},
+      {n:'海苔風味搖搖薯條',c:'期間限定點心',p:69,until:'2026-11-24'},
+      {n:'海苔風味搖搖粉（單包）',c:'期間限定加購',p:6,until:'2026-11-24'},
+      {n:'黑森林冰炫風',c:'期間限定甜點',p:69,until:'2026-11-24'},
+      {n:'巧克力三角派',c:'期間限定甜點',p:50,until:'2026-11-24'},
+      {n:'奶昔大哥雲朵包',c:'期間限定周邊',p:399,until:'2026-12-15',detail:'購買指定套餐可加購價NT$359'},
+      {n:'奶昔大哥雲朵包（套餐加購）',c:'期間限定周邊',p:359,until:'2026-12-15',detail:'需搭配指定早餐套餐、超值全餐或分享盒，每份套餐限加購1個'},
+    ];
+
+    const MENU_FAQ = [
+      {question:'台灣麥當勞目前有哪些菜單品項和價格？麥當勞菜單價目表',answer:'這份菜單資料整理於' + DATA_AS_OF + '，涵蓋早餐、漢堡主餐、點心冰品、飲料、McCafé、兒童餐、分享盒與當期限定品。門市參考價以資料庫個別品項為準；價格及供應狀況可能因地區、特殊門市、時段與外送通路而不同。可直接問品項名稱與價格，或輸入「200元以內有什麼套餐」。',source:PRICE_SOURCE},
+      {question:'麥當勞每家店價格都一樣嗎？歡樂送價格一樣嗎？',answer:'不一定。麥當勞官方說明，內用、外帶及得來速依各地區餐廳價目表供應，歡樂送另有價目表；部分餐廳也可能未供應特定品項。本資料列的是截至' + DATA_AS_OF + '蒐集的門市參考價，不保證每間店同價，結帳前請看該店或麥當勞 App。',source:'麥當勞官方菜單與官方價格公告'},
+      {question:'麥當勞超值全餐怎麼算？大麥克套餐多少錢？',answer:'一般超值全餐由主餐單點價加上配餐費用計算。大麥克單點參考價NT$78，A經典配餐約NT$148；官方2026年5月公告超值全餐部分套餐調升NT$5，主餐單點價格不變。其他配餐選項、門市及外送價格請以點餐頁面為準。',source:'麥當勞官方2026/05/19價格公告＋2026價格整理'},
+      {question:'麥當勞早餐供應到幾點？早餐有什麼？',answer:'官方菜單標示早餐供應至上午10:30前，部分餐廳未供應或僅供應部分品項。常見早餐包含滿福堡、蛋堡、焙果堡、鬆餅、麥香魚、麥克鷄塊，以及當期酪梨醬滿福系列；單點參考價請查詢各品項。',source:'麥當勞官方菜單＋2026/11早餐價格整理'},
+      {question:'麥當勞1+1星級點多少錢？有哪些組合？可以外送嗎？',answer:'1+1星級點有NT$50與NT$69兩種組合，依當期紅區餐點搭配白區飲品；常見選項包括麥香鷄、吉事漢堡、麥克鷄塊、小薯、麥香魚、麥克雙牛堡或冰炫風。品項依餐廳與活動期調整，官方菜單註明不適用歡樂送，請以門市/App自取頁面當期選項為準。',source:'麥當勞官方菜單＋2026價格整理'},
+      {question:'麥當勞目前有哪些期間限定品？什麼時候停售？',answer:'截至' + DATA_AS_OF + '查到的限定品包括松露黑堡系列、海苔風味搖搖薯條、黑森林冰炫風與巧克力三角派（官方公告供應至2026/11/24或售完）；酪梨醬滿福系列與奶昔大哥雲朵包活動至2026/12/15或售完。各店供貨可能提早售完，請先看官方活動頁或 App。',source:'麥當勞官方期間限定活動頁'},
+      {question:'金黃地瓜條、香芋派、KITKAT冰炫風還有賣嗎？停售品項有哪些？',answer:'截至' + DATA_AS_OF + '的官方常態菜單未列金黃地瓜條、香芋派與KITKAT巧克力脆脆冰炫風；它們先前的限定檔期已結束。2026/09/02起也有多項主廚雞腿堡、雙層麥香鷄及藜麥烤鷄沙拉停售。季節品可能日後回歸，請以麥當勞最新公告為準。',source:'麥當勞官方現行菜單＋2026限定品公告'},
+      {question:'台灣麥當勞菜單價格是官方全台固定價嗎？這份資料何時更新？',answer:'不是全台保證固定價。本頁在' + DATA_AS_OF + '整理官方現行品項及公開價格參考；麥當勞官方明示售價依地區門市價目表、歡樂送另計。品項、價格、供應時間及庫存都可能變動，請把此資料當作點餐前參考。',source:PRICE_SOURCE},
+    ];
+
+    function makeMenuQA(item) {
+      const isCurrent = isAvailable(item);
+      let priceText = item.p === null ? '目前未找到可可靠確認的統一單點參考價，請查看該店菜單或麥當勞 App。' : '門市單點參考價為NT$' + item.p + '。';
+      let mealText = '';
+      if (item.meal === 'main' && item.p !== null) mealText = 'A經典配餐合計參考約NT$' + (item.p + 70) + '（主餐加NT$70），其他配餐另計。';
+      if (item.meal === 'breakfast' && item.p !== null) mealText = '早餐D飲料配餐合計參考約NT$' + (item.p + 25) + '；其他早餐配餐選項費用不同。';
+      const status = item.until ? (isCurrent ? '期間限定，公告供應至' + item.until.replaceAll('-', '/') + '或售完。' : '此品項的公告限定期間已結束；是否回歸請查詢官方最新菜單。') : '';
+      const answer = item.n + '（' + item.c + '）：' + (isCurrent ? priceText : '目前不在本資料標記的供應期間內。') + (isCurrent ? mealText : '') + (item.detail ? item.detail + '。' : '') + status + '價格資料整理日：' + DATA_AS_OF + '。各店售價與供應依門市/App為準。';
+      return {question:item.n + '多少錢？' + item.n + '單點價格、麥當勞菜單價錢',answer,source:item.until ? '官方活動頁＋2026價格參考' : PRICE_SOURCE};
+    }
+
+    function isAvailable(item) {
+      if (!item.until) return true;
+      const now = new Date();
+      const today = String(now.getFullYear()).padStart(4,'0') + '-' + String(now.getMonth() + 1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+      return today <= item.until;
+    }
+
+    function buildCatalogSummary() {
+      const categories = ['早餐','漢堡／主餐','極選漢堡','極選沙拉','點心','冰品／甜點','飲料','McCafé／咖啡','McCafé／飲料','Happy Meal兒童餐','分享盒','期間限定主餐','期間限定早餐','期間限定點心','期間限定甜點'];
+      return categories.map(category => {
+        const products = MENU_ITEMS.filter(item => item.c === category && isAvailable(item));
+        if (!products.length) return '';
+        return category + '：' + products.map(item => item.n + (item.p === null ? '（價格依門市）' : '（NT$' + item.p + '）')).join('、') + '。';
+      }).filter(Boolean).join('\n') + '\n菜單及價格資料整理日：' + DATA_AS_OF + '。部分門市未供應所有品項，價格依餐廳/App而異。';
+    }
+
+    const SEED_DATA = MENU_FAQ.concat(MENU_ITEMS.map(makeMenuQA), [{
+      question:'麥當勞目前完整菜單有哪些？各類餐點和單點價格清單',
+      answer:buildCatalogSummary(),
+      source:'麥當勞官方現行菜單＋2026價格參考'
+    }]);
+
+    const HAN_RE = /\p{Script=Han}/u;
+    const segmenter = typeof Intl !== 'undefined' && Intl.Segmenter ? new Intl.Segmenter('zh-Hant', {granularity:'word'}) : null;
+    const $ = id => document.getElementById(id);
+    let knowledge = readStored();
+    if (knowledge === null) knowledge = SEED_DATA.map(row => ({id:makeId(), ...row}));
+    let indexed = [];
+    let documentFrequency = new Map();
+    let averageLength = 0;
+
+    function makeId() {
+      return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + '-' + Math.random().toString(36).slice(2);
+    }
+
+    function normalizeRows(value) {
+      let rows = value;
+      if (!Array.isArray(rows) && rows && typeof rows === 'object') rows = rows.items || rows.data || rows.qa || rows.knowledge;
+      if (!Array.isArray(rows)) throw new Error('資料格式需要是 JSON 陣列，或包含 items / data / qa 陣列的物件。');
+      const normalized = [];
+      rows.forEach((row, index) => {
+        if (!row || typeof row !== 'object') return;
+        const question = String(row.question ?? row.q ?? row.query ?? row.prompt ?? '').trim();
+        const answer = String(row.answer ?? row.a ?? row.response ?? row.content ?? '').trim();
+        if (!question || !answer) return;
+        const source = String(row.source ?? row.title ?? row.category ?? ('資料 ' + (index + 1))).trim();
+        normalized.push({id:makeId(), question, answer, source:source || ('資料 ' + (index + 1))});
+      });
+      if (!normalized.length) throw new Error('找不到有效資料。每筆問答都需要 question 與 answer 內容。');
+      return normalized;
+    }
+
+    function parseImport(text) {
+      const content = text.replace(/^\uFEFF/, '').trim();
+      if (!content) throw new Error('請先貼上或選擇問答資料。');
+      try {
+        return normalizeRows(JSON.parse(content));
+      } catch (jsonError) {
+        const lines = content.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+        if (lines.length > 1) {
+          try {
+            return normalizeRows(lines.map(line => JSON.parse(line)));
+          } catch (lineError) {
+            if (lineError && lineError.message && lineError.message.startsWith('找不到')) throw lineError;
+          }
+        }
+        if (jsonError && jsonError.message && (jsonError.message.startsWith('找不到') || jsonError.message.startsWith('資料格式'))) throw jsonError;
+        throw new Error('無法讀取資料，請確認 JSON 格式正確，或每行各放一筆 JSON。');
+      }
+    }
+
+    function readStored() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw === null) return null;
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length === 0) return [];
+        return normalizeRows(parsed);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function saveKnowledge() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(knowledge.map(({question, answer, source}) => ({question, answer, source}))));
+        return true;
+      } catch (error) {
+        setMessage('kb-message', '無法儲存：瀏覽器儲存空間可能已滿。', true);
+        return false;
+      }
+    }
+
+    function setMessage(id, message, error) {
+      const element = $(id);
+      element.textContent = message || '';
+      element.classList.toggle('error', Boolean(error));
+    }
+
+    function tokenize(text) {
+      const normalized = String(text).normalize('NFKC').toLocaleLowerCase('zh-Hant');
+      const terms = new Set();
+      if (segmenter) {
+        for (const part of segmenter.segment(normalized)) {
+          if (part.isWordLike) terms.add(part.segment);
+        }
+      } else {
+        const pieces = normalized.match(/\p{Script=Han}+|[\p{L}\p{N}]+/gu) || [];
+        pieces.forEach(piece => {
+          if (!HAN_RE.test(piece)) terms.add(piece);
+          else if (piece.length === 1) terms.add(piece);
+          else for (let i = 0; i < piece.length - 1; i++) terms.add(piece.slice(i, i + 2));
+        });
+      }
+      const hanRuns = normalized.match(/\p{Script=Han}+/gu) || [];
+      hanRuns.forEach(run => {
+        if (run.length === 1) terms.add(run);
+        else for (let i = 0; i < run.length - 1; i++) terms.add(run.slice(i, i + 2));
+      });
+      const stopWords = new Set(['的','了','是','在','有','和','與','及','或','請問','請','我','你','他','她','它','這','那','嗎','呢','啊','可以','如何','什麼','為什麼','怎麼','the','a','an','and','or','is','are','to','of','in','on','for','what','how','why','please']);
+      return Array.from(terms).filter(term => !stopWords.has(term) && (HAN_RE.test(term) || term.length > 1));
+    }
+
+    function rebuildIndex() {
+      indexed = knowledge.map((item, index) => {
+        const questionTerms = tokenize(item.question);
+        const answerTerms = tokenize(item.answer);
+        const terms = questionTerms.concat(questionTerms, answerTerms);
+        const frequencies = new Map();
+        terms.forEach(term => frequencies.set(term, (frequencies.get(term) || 0) + 1));
+        return {item, index, frequencies, length:terms.length};
+      });
+      documentFrequency = new Map();
+      let totalLength = 0;
+      indexed.forEach(doc => {
+        totalLength += doc.length;
+        doc.frequencies.forEach((count, term) => documentFrequency.set(term, (documentFrequency.get(term) || 0) + 1));
+      });
+      averageLength = indexed.length ? totalLength / indexed.length : 0;
+      $('index-status').textContent = indexed.length ? '索引已更新 · ' + indexed.length + ' 筆問答' : '尚未建立索引';
+    }
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    }
+
+    function renderKnowledge() {
+      $('kb-count').textContent = knowledge.length + ' 筆';
+      $('export-data').disabled = !knowledge.length;
+      $('clear-data').disabled = !knowledge.length;
+      if (!knowledge.length) {
+        $('kb-list').innerHTML = '<div class="kb-empty">知識庫目前是空的。先新增或匯入你的問答。</div>';
+        rebuildIndex();
+        return;
+      }
+      $('kb-list').innerHTML = knowledge.map((item, index) =>
+        '<article class="kb-item"><div class="kb-item-top"><div class="kb-question">' + escapeHTML(item.question) + '</div><button class="remove" type="button" data-remove="' + index + '" aria-label="刪除問答">刪除</button></div><div class="kb-answer">' + escapeHTML(item.answer) + '</div><div class="kb-source">' + escapeHTML(item.source) + '</div></article>'
+      ).join('');
+      rebuildIndex();
+    }
+
+    function retrieve(query, limit) {
+      const queryTerms = tokenize(query);
+      if (!queryTerms.length || !indexed.length) return [];
+      const queryFrequency = new Map();
+      queryTerms.forEach(term => queryFrequency.set(term, (queryFrequency.get(term) || 0) + 1));
+      const scored = indexed.map(doc => {
+        let score = 0;
+        let maximum = 0;
+        queryFrequency.forEach((queryCount, term) => {
+          const df = documentFrequency.get(term) || 0;
+          const idf = Math.log(1 + (indexed.length - df + 0.5) / (df + 0.5));
+          const weightedIdf = idf * queryCount;
+          maximum += weightedIdf * ((2 * (BM25_K1 + 1)) / (2 + BM25_K1));
+          const frequency = doc.frequencies.get(term) || 0;
+          if (!frequency) return;
+          const lengthRatio = averageLength ? doc.length / averageLength : 1;
+          const denominator = frequency + BM25_K1 * (1 - BM25_B + BM25_B * lengthRatio);
+          score += weightedIdf * (frequency * (BM25_K1 + 1)) / denominator;
+        });
+        return {item:doc.item, index:doc.index, score, relevance:maximum ? Math.min(1, score / maximum) : 0};
+      }).filter(result => result.score > 0);
+      return scored.sort((a, b) => b.score - a.score || a.index - b.index).slice(0, limit);
+    }
+
+    function buildBudgetResponse(query) {
+      const match = query.match(/(\d{1,4})\s*(?:元|塊錢|塊)?/);
+      const wantsBudget = /預算|以內|以下|不超過|不到|最多|以上|至少|超過|推薦|可以吃|可以買|能吃|能買|點什麼|吃什麼/.test(query);
+      if (!match || !wantsBudget) return null;
+      const amount = Number(match[1]);
+      const minimum = /以上|至少|超過|高於/.test(query);
+      const wantsMeal = /套餐|全餐/.test(query);
+      let category = '';
+      if (/早餐|滿福|焙果|鬆餅|蛋堡/.test(query)) category = '早餐';
+      else if (/咖啡/.test(query)) category = '咖啡';
+      else if (/飲料|喝的|茶|可樂/.test(query)) category = '飲料';
+      else if (/沙拉/.test(query)) category = '沙拉';
+      else if (/甜點|冰品|冰淇淋|派/.test(query)) category = '甜點';
+      else if (/點心|薯條|雞塊|鷄塊/.test(query)) category = '點心';
+      else if (/漢堡|牛肉|雞腿|鷄腿|魚堡|主餐/.test(query)) category = '主餐';
+      else if (/分享盒/.test(query)) category = '分享盒';
+
+      const candidates = MENU_ITEMS.filter(item => {
+        if (!isAvailable(item) || item.p === null) return false;
+        if (category && !item.c.includes(category) && !item.n.includes(category) &&
+            !(category === '主餐' && /漢堡|牛肉|雞腿|鷄腿|魚/.test(item.n))) return false;
+        if (!category && (item.c.includes('周邊') || item.c.includes('分享盒'))) return false;
+        if (wantsMeal && item.meal !== 'main' && item.meal !== 'breakfast') return false;
+        return true;
+      }).map(item => {
+        const price = wantsMeal ? item.p + (item.meal === 'breakfast' ? 25 : 70) : item.p;
+        return {item, price};
+      }).filter(row => minimum ? row.price >= amount : row.price <= amount)
+        .sort((a, b) => minimum ? a.price - b.price : b.price - a.price)
+        .slice(0, 8);
+
+      if (!candidates.length) {
+        return {answer:'目前資料庫沒有找到符合這個金額與條件的品項。若查的是特定門市或外送，價格可能不同，請以麥當勞 App 為準。', results:[]};
+      }
+      const priceType = wantsMeal ? '套餐參考價' : '單點參考價';
+      const qualifier = minimum ? 'NT$' + amount + '以上' : 'NT$' + amount + '以內';
+      const answer = qualifier + (category ? '的' + category : '') + (wantsMeal ? '套餐' : '品項') + '可以參考：\n' +
+        candidates.map(row => '・' + row.item.n + '：NT$' + row.price + (wantsMeal && row.item.meal === 'main' ? '（A經典配餐估算）' : wantsMeal ? '（早餐D配餐估算）' : '')).join('\n') +
+        '\n以上為' + DATA_AS_OF + '整理的門市參考價；套餐以主餐加配餐估算，實際價格及供應請以該店/App為準。';
+      const results = candidates.map(row => ({
+        item:{question:row.item.n, answer:priceType + '：NT$' + row.price, source:'符合預算；' + PRICE_SOURCE},
+        relevance:1,
+        label:'符合預算'
+      }));
+      return {answer, results};
+    }
+
+    function renderResults(results) {
+      if (!results.length) {
+        $('result-summary').textContent = '沒有文字重疊';
+        $('result-list').innerHTML = '<div class="results-empty">知識庫中沒有找到明顯相關的詞。試著換個問法，或確認已匯入對應資料。</div>';
+        return;
+      }
+      $('result-summary').textContent = '顯示 ' + results.length + ' 筆候選資料';
+      $('result-list').innerHTML = results.map((result, index) => {
+        const pct = Math.round(result.relevance * 100);
+        return '<article class="result"><div class="result-head"><div class="rank"><span class="rank-mark">' + (index + 1) + '</span>候選資料</div><div class="score"><span>' + escapeHTML(result.label || ('文字相關度 ' + pct + '%')) + '</span><span class="score-track"><span class="score-fill" style="display:block;width:' + pct + '%"></span></span></div></div><div class="result-q">' + escapeHTML(result.item.question) + '</div><div class="result-a">' + escapeHTML(result.item.answer) + '</div><div class="result-source">來源：' + escapeHTML(result.item.source) + '</div></article>';
+      }).join('');
+    }
+
+    function answerQuestion(query) {
+      const budget = buildBudgetResponse(query);
+      if (budget) {
+        renderResults(budget.results);
+        $('answer-state').textContent = '依預算篩選菜單';
+        $('answer-body').classList.remove('placeholder');
+        $('answer-body').textContent = budget.answer;
+        $('answer-foot').innerHTML = '<span>回答依據</span><span class="citation">菜單品項與參考價格</span><span>資料日 ' + DATA_AS_OF + '</span>';
+        return;
+      }
+      const results = retrieve(query, Number($('top-k').value) || 3);
+      renderResults(results);
+      const answerBody = $('answer-body');
+      const answerFoot = $('answer-foot');
+      answerFoot.innerHTML = '';
+      answerBody.classList.remove('placeholder');
+      if (!knowledge.length) {
+        $('answer-state').textContent = '知識庫是空的';
+        answerBody.textContent = '請先新增或匯入問答資料，再提出問題。';
+        $('result-summary').textContent = '尚無檢索結果';
+        $('result-list').innerHTML = '<div class="results-empty">將你的問答資料加入左側知識庫後，這裡會顯示相關結果。</div>';
+        return;
+      }
+      if (!results.length) {
+        $('answer-state').textContent = '沒有找到依據';
+        answerBody.textContent = '知識庫中沒有找到與這個問題相符的內容。請試著換個問法，或補充相關問答資料。';
+        return;
+      }
+      const best = results[0];
+      if (best.relevance < MIN_RELEVANCE) {
+        $('answer-state').textContent = '相關度偏低';
+        answerBody.textContent = '找到一些文字線索，但相關度偏低，暫不直接回答。請換個問法或補充知識庫內容。';
+        return;
+      }
+      $('answer-state').textContent = '已依據檢索資料回答';
+      answerBody.textContent = best.item.answer;
+      answerFoot.innerHTML = '<span>回答依據</span><span class="citation">' + escapeHTML(best.item.source) + '</span><span>相關度 ' + Math.round(best.relevance * 100) + '%</span>';
+    }
+
+    function applyImported(items, append) {
+      knowledge = append ? knowledge.concat(items) : items;
+      if (!saveKnowledge()) return;
+      renderKnowledge();
+      setMessage('import-message', '已' + (append ? '追加' : '載入') + ' ' + items.length + ' 筆問答。', false);
+      setMessage('edit-message', '');
+      answerQuestion($('query').value.trim());
+    }
+
+    $('qa-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const question = $('new-question').value.trim();
+      const answer = $('new-answer').value.trim();
+      if (!question || !answer) return;
+      knowledge.push({id:makeId(), question, answer, source:$('new-source').value.trim() || ('資料 ' + (knowledge.length + 1))});
+      if (!saveKnowledge()) {
+        knowledge.pop();
+        return;
+      }
+      renderKnowledge();
+      event.currentTarget.reset();
+      setMessage('edit-message', '問答已新增，索引已更新。', false);
+      setMessage('import-message', '');
+      answerQuestion($('query').value.trim());
+      $('new-question').focus();
+    });
+
+    $('append-import').addEventListener('click', () => {
+      try { applyImported(parseImport($('import-text').value), true); }
+      catch (error) { setMessage('import-message', error.message, true); }
+    });
+    $('replace-import').addEventListener('click', () => {
+      try { applyImported(parseImport($('import-text').value), false); }
+      catch (error) { setMessage('import-message', error.message, true); }
+    });
+    $('import-file').addEventListener('change', event => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        $('import-text').value = String(reader.result || '');
+        try { applyImported(parseImport($('import-text').value), true); }
+        catch (error) { setMessage('import-message', error.message, true); }
+        event.target.value = '';
+      };
+      reader.onerror = () => setMessage('import-message', '無法讀取這個檔案。', true);
+      reader.readAsText(file, 'UTF-8');
+    });
+
+    $('kb-list').addEventListener('click', event => {
+      const button = event.target.closest('[data-remove]');
+      if (!button) return;
+      const index = Number(button.dataset.remove);
+      if (!Number.isInteger(index) || index < 0 || index >= knowledge.length) return;
+      knowledge.splice(index, 1);
+      saveKnowledge();
+      renderKnowledge();
+      setMessage('kb-message', '已刪除問答，索引已更新。', false);
+      answerQuestion($('query').value.trim());
+    });
+
+    $('clear-data').addEventListener('click', () => {
+      if (!knowledge.length || !window.confirm('要清空目前瀏覽器儲存的所有問答嗎？')) return;
+      knowledge = [];
+      saveKnowledge();
+      renderKnowledge();
+      setMessage('kb-message', '知識庫已清空。', false);
+      answerQuestion($('query').value.trim());
+    });
+
+    $('export-data').addEventListener('click', () => {
+      const data = knowledge.map(({question, answer, source}) => ({question, answer, source}));
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'rag-knowledge.json';
+      link.click();
+      URL.revokeObjectURL(url);
+      setMessage('kb-message', '已匯出 JSON 備份。', false);
+    });
+
+    $('query-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const query = $('query').value.trim();
+      if (query) answerQuestion(query);
+    });
+    $('top-k').addEventListener('change', () => {
+      if ($('query').value.trim()) answerQuestion($('query').value.trim());
+    });
+
+    renderKnowledge();
+  </script>
+</body>
+</html>
