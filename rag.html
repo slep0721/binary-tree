@@ -18,8 +18,10 @@
     .answer-card{overflow:hidden;padding:0}.answer-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 18px;border-bottom:1px solid var(--line);background:#fbfcff}.answer-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:820}.answer-icon{display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:var(--teal-soft);color:var(--teal);font-size:13px}.answer-state{color:var(--muted);font-size:10px}.answer-body{min-height:116px;padding:19px 20px;color:var(--ink);font-size:15px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere}.answer-body.placeholder{color:#9aa4b6;font-size:13px}.answer-foot{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:0 20px 16px;color:var(--muted);font-size:10px}.citation{padding:5px 8px;border-radius:7px;background:var(--teal-soft);color:var(--teal);font-weight:750}
     .results-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:3px 0 10px}.results-head h2{margin:0;font-size:15px}.results-head span{color:var(--muted);font-size:10px}.result-list{display:grid;gap:9px}.result{padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:#fff}.result-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.rank{display:flex;align-items:center;gap:7px;color:#526078;font-size:11px;font-weight:800}.rank-mark{display:grid;place-items:center;width:21px;height:21px;border-radius:7px;background:var(--primary-soft);color:var(--primary);font-size:10px}.score{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:10px}.score-track{width:76px;height:5px;overflow:hidden;border-radius:9px;background:#edf0f6}.score-fill{height:100%;border-radius:inherit;background:var(--teal)}.result-q{margin-top:9px;font-size:12px;font-weight:760;line-height:1.6}.result-a{margin-top:5px;color:#526078;font-size:11px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}.result-source{margin-top:8px;color:var(--primary);font-size:10px}.results-empty{padding:15px;border:1px dashed var(--line);border-radius:11px;color:var(--muted);font-size:12px;line-height:1.7}
     .note{padding:12px 14px;border:1px solid #f2dfb1;border-radius:11px;background:var(--amber-soft);color:#775216;font-size:11px;line-height:1.7}.note b{font-weight:800}.footnote{margin:17px 2px 0;color:#929caf;font-size:10px;line-height:1.7;text-align:center}
+    .rag-guide{margin-top:18px;padding:22px}.guide-heading{max-width:760px;margin-bottom:18px}.guide-heading .eyebrow{margin-bottom:8px}.guide-heading h2{margin:0 0 7px;font-size:20px}.guide-heading p{margin:0;color:var(--muted);font-size:12px;line-height:1.75}.guide-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.guide-step{min-height:152px;padding:14px;border:1px solid var(--line);border-radius:13px;background:#fcfdff}.guide-step-num{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:var(--primary-soft);color:var(--primary);font-size:11px;font-weight:850}.guide-step h3{margin:11px 0 6px;font-size:13px}.guide-step p{margin:0;color:var(--muted);font-size:11px;line-height:1.7}.guide-example{margin-top:13px;padding:14px;border:1px solid #d7e9e5;border-radius:12px;background:#f7fcfa}.guide-example-title{margin-bottom:9px;color:var(--teal);font-size:11px;font-weight:850}.guide-example-flow{display:flex;align-items:center;flex-wrap:wrap;gap:8px;color:#35415a;font-size:12px;line-height:1.7}.guide-example-flow span{padding:7px 10px;border-radius:9px;background:#fff}.guide-example-flow .arrow{padding:0;background:transparent;color:#93a1b2;font-size:16px}.guide-caveat{margin:12px 0 0;padding:11px 13px;border-radius:10px;background:#f3f5fa;color:var(--muted);font-size:11px;line-height:1.7}.guide-caveat b{color:#35415a}
     @media(max-width:850px){.layout{grid-template-columns:1fr}.column:first-child{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.column:first-child .card:first-child{grid-row:span 2}}
-    @media(max-width:600px){main{width:92%;margin:20px auto 36px}.topbar{margin-bottom:21px}.brand{display:none}.hero{display:block}.privacy{max-width:none;margin-top:14px}.column:first-child{grid-template-columns:1fr}.column:first-child .card:first-child{grid-row:auto}.card{padding:17px}.query-row{grid-template-columns:1fr}.query-row button{width:100%}.pipeline{grid-template-columns:repeat(2,1fr)}.pipe-step:nth-child(2):after{display:none}.query-options{align-items:flex-start;flex-direction:column}}
+    @media(max-width:850px){.guide-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:600px){main{width:92%;margin:20px auto 36px}.topbar{margin-bottom:21px}.brand{display:none}.hero{display:block}.privacy{max-width:none;margin-top:14px}.column:first-child{grid-template-columns:1fr}.column:first-child .card:first-child{grid-row:auto}.card{padding:17px}.query-row{grid-template-columns:1fr}.query-row button{width:100%}.pipeline{grid-template-columns:repeat(2,1fr)}.pipe-step:nth-child(2):after{display:none}.query-options{align-items:flex-start;flex-direction:column}.rag-guide{padding:17px}.guide-grid{grid-template-columns:1fr}.guide-step{min-height:0}.guide-example-flow{align-items:stretch;flex-direction:column}.guide-example-flow .arrow{transform:rotate(90deg);align-self:center}}
     @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
   </style>
 </head>
@@ -138,6 +140,46 @@
         <div class="note"><b>價格說明：</b>麥當勞官網指出價格依各地區餐廳價目表為準，歡樂送另有價目表。本頁金額是截至 2026/11/13 蒐集的門市參考價，非即時報價；點餐前請以該門市或麥當勞 App 為準。回答依據菜單資料檢索，不會即時連線更新。</div>
       </section>
     </div>
+    <section class="card rag-guide" aria-labelledby="rag-guide-title">
+      <div class="guide-heading">
+        <div class="eyebrow"><span class="dot"></span> HOW RAG WORKS</div>
+        <h2 id="rag-guide-title">RAG 原理：先找資料，再根據資料回答</h2>
+        <p>RAG 是「檢索增強生成」（Retrieval-Augmented Generation）。它先從知識庫找出與問題相關的資料，再把這些資料交給回答流程，讓回答有可核對的依據。</p>
+      </div>
+      <div class="guide-grid">
+        <article class="guide-step">
+          <span class="guide-step-num">01</span>
+          <h3>準備知識庫</h3>
+          <p>把資料整理成可搜尋的內容。本頁內建台灣麥當勞品項、參考價格、來源及限定供應日期。</p>
+        </article>
+        <article class="guide-step">
+          <span class="guide-step-num">02</span>
+          <h3>檢索相關資料</h3>
+          <p>讀取使用者的問題，切分文字並計算 BM25 相關度，將最可能有用的菜單資料排在前面。預算問題另用價格條件篩選。</p>
+        </article>
+        <article class="guide-step">
+          <span class="guide-step-num">03</span>
+          <h3>補上回答依據</h3>
+          <p>把找到的品項、價格、來源與適用說明一起交給回答流程。沒有找到足夠相關的內容時，應提示資料不足。</p>
+        </article>
+        <article class="guide-step">
+          <span class="guide-step-num">04</span>
+          <h3>回答並可查證</h3>
+          <p>使用檢索結果回答，並展示候選資料，讓使用者能核對品項、參考價格與來源。</p>
+        </article>
+      </div>
+      <div class="guide-example">
+        <div class="guide-example-title">用這份麥當勞菜單舉例</div>
+        <div class="guide-example-flow">
+          <span>問題：大麥克多少錢？</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span>檢索：大麥克單點參考價 NT$78</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span>回答：列出價格、套餐估算與門市價差提醒</span>
+        </div>
+      </div>
+      <p class="guide-caveat"><b>本頁的回答方式：</b>一般 RAG 可以把檢索到的資料交給生成式語言模型整合答案；這個 GitHub Pages 示範不連接外部 AI，會直接引用最相關的菜單資料，並用價格規則處理預算問題。因此答案可依據資料核對，但不會像大型語言模型一樣自由改寫或綜合多筆資訊。</p>
+    </section>
     <p class="footnote">資料來源：
       <a href="https://www.mcdonalds.com/tw/zh-tw/full-menu.html" target="_blank" rel="noopener">麥當勞台灣官方菜單</a> ·
       <a href="https://www.mcdonalds.com/tw/zh-tw/newsroom/2026/20260519.html" target="_blank" rel="noopener">官方價格調整公告</a> ·
